@@ -1,0 +1,416 @@
+cassandra
+cassandra-3.5-0.fc23.src.rpm
+FAIL
+
+* hadoop-common
+* hadoop-mapreduce
+hadoop-2.4.1-21.fc25.src.rpm
+FAIL
+ISOLATED from cassandra
+
+** apache-commons-el
+rh-java-common
+** apache-commons-math
+** avro
+** avro-maven-plugin
+** bookkeeper-java
+** checkstyle
+** grizzly
+** groovy18
+rh-maven33
+** guice-servlet
+rh-maven33
+** java-base64
+** java-xmlbuilder
+** jdiff
+** jersey1
+** jersey1-contribs
+** jersey1-test-framework
+** jets3t
+** jetty8
+rh-java-common
+** json_simple
+SUCCESS
+** jspc
+rh-java-common
+** leveldbjni
+** log4j12
+rh-java-common
+** metrics
+** mockito
+rh-maven33
+** native-maven-plugin
+** netty3
+rh-java-common
+** objenesis >= 1.2-16
+rh-java-common
+** paranamer
+** snappy-java
+** tomcat-el-3.0-api
+** tomcat-log4j
+** tomcat-servlet-3.1-api
+** xmlenc
+** znerd-oss-parent
+** zookeeper-java > 3.4.5-15
+
+* mvn(ch.qos.logback:logback-classic)
+* mvn(ch.qos.logback:logback-core)
+logback-1.1.7-1.fc25.src.rpm
+FAIL
+
+** mvn(log4j:log4j:1.2.17)
+rh-java-common
+** mvn(org.apache.felix:org.apache.felix.main)
+** mvn(org.codehaus.gmavenplus:gmavenplus-plugin)
+** mvn(org.codehaus.groovy:groovy-all)
+rh-maven33
+** mvn(org.codehaus.janino:janino)
+
+* mvn(com.addthis.metrics:reporter-config3)
+metrics-reporter-config-3.0.0-1.fc25.src.rpm
+FAIL
+
+** mvn(com.codahale.metrics:metrics-core)
+** mvn(com.codahale.metrics:metrics-ganglia)
+** mvn(com.codahale.metrics:metrics-graphite)
+** mvn(org.hibernate:hibernate-validator)
+** mvn(org.mockito:mockito-all)
+rh-maven33
+
+* mvn(com.carrotsearch:hppc)
+hppc-0.7.1-3.fc24.src.rpm
+FAIL
+
+** mvn(org.antlr:antlr4)
+** mvn(org.antlr:antlr4-maven-plugin)
+
+* mvn(com.clearspring.analytics:stream)
+stream-lib-2.6.0-5.fc24.src.rpm
+FAIL
+
+** mvn(it.unimi.dsi:fastutil)
+
+* mvn(com.datastax.cassandra:cassandra-driver-core)
+cassandra-java-driver-3.0.0-2.fc25.src.rpm
+FAIL
+
+** mvn(com.fasterxml.jackson.core:jackson-databind)
+devtoolset-4
+** mvn(io.dropwizard.metrics:metrics-core)
+** mvn(io.netty:netty-handler)
+rh-java-common
+** mvn(io.netty:netty-tcnative)
+** mvn(io.netty:netty-transport-native-epoll)
+rh-java-common
+** mvn(javax.json:javax.json-api)
+** mvn(log4j:log4j:1.2.17)
+rh-java-common
+** mvn(net.jpountz.lz4:lz4)
+** mvn(org.assertj:assertj-core)
+** mvn(org.glassfish:javax.json)
+** mvn(org.hdrhistogram:HdrHistogram)
+** mvn(org.mockito:mockito-all)
+rh-maven33
+** mvn(org.xerial.snappy:snappy-java)
+
+* mvn(com.github.jbellis:jamm)
+jamm-0.3.1-2.fc25.src.rpm
+SUCCESS
+
+* mvn(com.github.stephenc.high-scale-lib:high-scale-lib)
+high-scale-lib-1.1.4-7.fc25.src.rpm
+SUCCESS
+
+* mvn(com.googlecode.concurrent-trees:concurrent-trees) TODO
+concurrent-trees-2.5.0-2.fc25.src.rpm
+FAIL
+error: Could not open %files file /builddir/build/BUILD/concurrent-trees-2.5.0/.mfiles-javadoc: No such file or directory
+
+* mvn(com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru)
+concurrentlinkedhashmap-lru-1.4.2-3.fc24.src.rpm
+SUCCESS
+
+* mvn(com.googlecode.json-simple:json-simple)
+json_simple-1.1.1-13.fc25.src.rpm
+SUCCESS
+
+* mvn(com.ning:compress-lzf)
+compress-lzf-1.0.3-5.fc25.src.rpm
+SUCCESS
+
+* mvn(com.thinkaurelius.thrift:thrift-server)
+disruptor-thrift-server-0.3.8-2.fc25.src.rpm
+FAIL
+
+** mvn(com.lmax:disruptor)
+** mvn(org.apache.thrift:libthrift)
+
+* mvn(io.airlift:airline)
+airline-0.7-4.fc24.src.rpm
+FAIL
+
+** mvn(com.google.code.findbugs:annotations)
+
+* mvn(io.dropwizard.metrics:metrics-core)
+metrics-3.1.2-3.fc24.src.rpm
+FAIL
+
+** mvn(ch.qos.logback:logback-classic)
+** mvn(com.fasterxml.jackson.core:jackson-databind)
+devtoolset-4
+** mvn(com.rabbitmq:amqp-client)
+** mvn(com.sun.jersey:jersey-server:1)
+devtoolset-4
+** mvn(info.ganglia.gmetric4j:gmetric4j)
+** mvn(javax.ws.rs:javax.ws.rs-api)
+devtoolset-4
+** mvn(log4j:log4j:1.2.17)
+rh-java-common
+** mvn(net.sf.ehcache:ehcache-core)
+** mvn(org.apache.httpcomponents:httpasyncclient)
+** mvn(org.apache.logging.log4j:log4j-api)
+rh-java-common
+** mvn(org.apache.logging.log4j:log4j-core)
+rh-java-common
+** mvn(org.glassfish.jersey.core:jersey-server)
+devtoolset-4
+** mvn(org.jdbi:jdbi)
+** mvn(org.openjdk.jmh:jmh-core)
+** mvn(org.openjdk.jmh:jmh-generator-annprocess)
+
+* mvn(net.jpountz.lz4:lz4)
+lz4-java-1.3.0-3.fc25.src.rpm
+FAIL
+
+** cpptasks
+** ivy-local
+rh-java-common
+** javapackages-local
+rh-java-common
+** mvel
+** randomizedtesting-junit4-ant
+
+* mvn(net.ju-n.compile-command-annotations:compile-command-annotations)
+compile-command-annotations-1.2.0-1.fc25.src.rpm
+FAIL
+
+** mvn(org.assertj:assertj-core)
+
+* mvn(net.mintern:primitive)
+primitive-1.2.2-2.fc25.src.rpm
+FAIL
+
+** mvn(net.sourceforge.fmpp:fmpp)
+
+* mvn(org.antlr:antlr)
+antlr3-3.5.2-11.fc25.src.rpm
+rh-java-common
+FAIL
+
+** mvn(org.antlr:ST4)
+** mvn(org.antlr:antlr)
+** mvn(org.antlr:antlr3-maven-plugin)
+** mvn(org.antlr:stringtemplate)
+
+* mvn(org.apache.thrift:libthrift)
+thrift-0.9.1-17.fc25.4.src.rpm
+FAIL
+
+** tomcat-servlet-3.1-api
+
+* mvn(org.caffinitas.ohc:ohc-core)
+ohc-0.4.2-4.fc25.src.rpm
+FAIL
+
+** mvn(com.codahale.metrics:metrics-core)
+** mvn(net.jpountz.lz4:lz4)
+** mvn(org.apache.commons:commons-math3)
+** mvn(org.apache.logging.log4j:log4j-api)
+** mvn(org.apache.logging.log4j:log4j-core)
+** mvn(org.apache.logging.log4j:log4j-slf4j-impl)
+** mvn(org.openjdk.jmh:jmh-core)
+** mvn(org.openjdk.jmh:jmh-generator-annprocess)
+** mvn(org.xerial.snappy:snappy-java)
+
+* mvn(org.fusesource:sigar)
+sigar-1.6.5-0.16.git58097d9.fc24.src.rpm
+FAIL
+
+** cpptasks
+** javapackages-local
+rh-java-common
+** mx4j
+
+* mvn(org.mindrot:jbcrypt)
+jBCrypt-0.4-3.fc24.src.rpm
+FAIL
+
+** javapackages-local
+rh-java-common
+
+* mvn(org.openjdk.jmh:jmh-core)
+jmh-1.11.3-2.fc24.src.rpm
+FAIL
+
+** mvn(net.sf.jopt-simple:jopt-simple)
+** mvn(org.apache.commons:commons-math3)
+
+* mvn(org.tartarus:snowball)
+snowball-java-0-0.7.20130902.fc24.src.rpm
+SUCCESS
+
+* mvn(org.xerial.snappy:snappy-java) TODO
+snappy-java-1.1.2.4-2.fc25.src.rpm
+FAIL
++ %pom_change_dep org.osgi: org.apache.felix::1.4.0
+/var/tmp/rpm-tmp.vpHlxn: line 54: fg: no job control
+error: Bad exit status from /var/tmp/rpm-tmp.vpHlxn (%prep)
+
+==== BACKUP ============================================================
+
+python-pip-7.1.0-1.fc23.src.rpm
+antlr-2.7.7-37.fc23.src.rpm
+jamm-0.3.1-1.fc23.src.rpm
+json_simple-1.1.1-11.fc23.src.rpm
+dia-0.97.3-5.fc24.src.rpm
+
+Failed:
+Cython %py2_build /var/tmp/rpm-tmp.uodHct: line 29: fg: no job control
+
+python File "/usr/lib64/python2.7/lib2to3/tests/data/py3_test_grammar.py", line 130
+    x = ... SyntaxError: invalid syntax
+        ^
+ant AnsibleResponseError
+
+jflex Error in file "src/main/jflex/LexScan.flex" (line 43): Unkown %-option %inputstreamctor false
+
+maven error: line 78: Unknown tag: Recommends:     java-devel
+
+thrift Error: No Package found for tomcat-servlet-3.1-api
+
+tomcat AnsibleResponseError
+
+stream-lib Error: No Package found for mvn(it.unimi.dsi:fastutil)
+
+metrics
+Error: No Package found for mvn(ch.qos.logback:logback-classic)
+Error: No Package found for mvn(com.fasterxml.jackson.core:jackson-databind)
+Error: No Package found for mvn(com.rabbitmq:amqp-client)
+Error: No Package found for mvn(com.sun.jersey:jersey-server:1)
+Error: No Package found for mvn(info.ganglia.gmetric4j:gmetric4j)
+Error: No Package found for mvn(javax.ws.rs:javax.ws.rs-api)
+Error: No Package found for mvn(log4j:log4j:1.2.17)
+Error: No Package found for mvn(net.sf.ehcache:ehcache-core)
+Error: No Package found for mvn(org.apache.httpcomponents:httpasyncclient)
+Error: No Package found for mvn(org.apache.logging.log4j:log4j-api)
+Error: No Package found for mvn(org.apache.logging.log4j:log4j-core)
+Error: No Package found for mvn(org.glassfish.jersey.core:jersey-server)
+Error: No Package found for mvn(org.jdbi:jdbi)
+Error: No Package found for mvn(org.openjdk.jmh:jmh-core)
+Error: No Package found for mvn(org.openjdk.jmh:jmh-generator-annprocess)
+
+fastutil
+Error: No Package found for emma
+Error: No Package found for javapackages-local
+
+cassandra-java-driver
+Error: No Package found for mvn(com.fasterxml.jackson.core:jackson-databind)
+Error: No Package found for mvn(io.dropwizard.metrics:metrics-core)
+Error: No Package found for mvn(io.netty:netty-handler)
+Error: No Package found for mvn(io.netty:netty-tcnative)
+Error: No Package found for mvn(io.netty:netty-transport-native-epoll)
+Error: No Package found for mvn(javax.json:javax.json-api)
+Error: No Package found for mvn(log4j:log4j:1.2.17)
+Error: No Package found for mvn(net.jpountz.lz4:lz4)
+Error: No Package found for mvn(org.assertj:assertj-core)
+Error: No Package found for mvn(org.glassfish:javax.json)
+Error: No Package found for mvn(org.hdrhistogram:HdrHistogram)
+Error: No Package found for mvn(org.mockito:mockito-all)
+Error: No Package found for mvn(org.xerial.snappy:snappy-java)
+
+cassandra
+Error: No Package found for hadoop-common
+Error: No Package found for hadoop-mapreduce
+Error: No Package found for mvn(ch.qos.logback:logback-classic)
+Error: No Package found for mvn(ch.qos.logback:logback-core)
+Error: No Package found for mvn(com.addthis.metrics:reporter-config3)
+Error: No Package found for mvn(com.carrotsearch:hppc)
+Error: No Package found for mvn(com.clearspring.analytics:stream)
+Error: No Package found for mvn(com.datastax.cassandra:cassandra-driver-core)
+Error: No Package found for mvn(com.github.stephenc.high-scale-lib:high-scale-lib)
+Error: No Package found for mvn(com.googlecode.concurrent-trees:concurrent-trees)
+Error: No Package found for mvn(com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru)
+Error: No Package found for mvn(com.ning:compress-lzf)
+Error: No Package found for mvn(com.thinkaurelius.thrift:thrift-server)
+Error: No Package found for mvn(io.airlift:airline)
+Error: No Package found for mvn(io.dropwizard.metrics:metrics-core)
+Error: No Package found for mvn(net.jpountz.lz4:lz4)
+Error: No Package found for mvn(net.ju-n.compile-command-annotations:compile-command-annotations)
+Error: No Package found for mvn(net.mintern:primitive)
+Error: No Package found for mvn(org.antlr:antlr)
+Error: No Package found for mvn(org.apache.thrift:libthrift)
+Error: No Package found for mvn(org.caffinitas.ohc:ohc-core)
+Error: No Package found for mvn(org.fusesource:sigar)
+Error: No Package found for mvn(org.mindrot:jbcrypt)
+Error: No Package found for mvn(org.openjdk.jmh:jmh-core)
+Error: No Package found for mvn(org.tartarus:snowball)
+Error: No Package found for mvn(org.xerial.snappy:snappy-java)
+
+javapackage-tools
+Error: No Package found for javapackages-tools >= 4.0.0
+Error: No Package found for python3-devel
+Error: No Package found for python3-lxml
+Error: No Package found for python3-nose
+Error: No Package found for python3-setuptools
+Error: No Package found for python3-six
+Error: No Package found for xmvn-resolve >= 2
+
+hadoop
+Error: No Package found for apache-commons-el
+Error: No Package found for apache-commons-math
+Error: No Package found for avro
+Error: No Package found for avro-maven-plugin
+Error: No Package found for bookkeeper-java
+Error: No Package found for checkstyle
+Error: No Package found for grizzly
+Error: No Package found for groovy18
+Error: No Package found for guice-servlet
+Error: No Package found for java-base64
+Error: No Package found for java-xmlbuilder
+Error: No Package found for jdiff
+Error: No Package found for jersey1
+Error: No Package found for jersey1-contribs
+Error: No Package found for jersey1-test-framework
+Error: No Package found for jets3t
+Error: No Package found for jetty8
+Error: No Package found for jspc
+Error: No Package found for leveldbjni
+Error: No Package found for log4j12
+Error: No Package found for metrics
+Error: No Package found for mockito
+Error: No Package found for native-maven-plugin
+Error: No Package found for netty3
+Error: No Package found for objenesis >= 1.2-16
+Error: No Package found for paranamer
+Error: No Package found for snappy-java
+Error: No Package found for tomcat-el-3.0-api
+Error: No Package found for tomcat-log4j
+Error: No Package found for tomcat-servlet-3.1-api
+Error: No Package found for xmlenc
+Error: No Package found for znerd-oss-parent
+Error: No Package found for zookeeper-java > 3.4.5-15
+
+python3
+Error: No Package found for db4-devel >= 4.7
+Error: No Package found for python-rpm-macros
+Error: No Package found for python3-pip
+Error: No Package found for python3-setuptools
+
+xmvn
+Error: No Package found for gradle >= 2.5
+Error: No Package found for maven >= 3.3
+Error: No Package found for sisu-mojos
+
+gradle AnsibleResponseError
+
+sisu-mojos Error: No Package found for mvn(org.eclipse.sisu:org.eclipse.sisu.inject)

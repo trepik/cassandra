@@ -1,0 +1,13 @@
+[Unit]
+Description=Cassandra database server for high-scale application
+Documentation=http://docs.datastax.com
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User=cassandra
+EnvironmentFile=/etc/sysconfig/cassandra
+ExecStart=/usr/bin/cassandra $OPTIONS
+
+[Install]
+WantedBy=multi-user.target

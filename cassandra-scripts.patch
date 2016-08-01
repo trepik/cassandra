@@ -1,0 +1,170 @@
+diff -ur o/bin/cassandra n/bin/cassandra
+--- o/bin/cassandra	2016-05-31 17:31:35.216062224 +0200
++++ n/bin/cassandra	2016-05-31 17:31:45.422162883 +0200
+@@ -188,7 +188,7 @@
+     props="$3"
+     class="$4"
+     cassandra_parms="-Dlogback.configurationFile=logback.xml"
+-    cassandra_parms="$cassandra_parms -Dcassandra.logdir=$CASSANDRA_HOME/logs"
++    cassandra_parms="$cassandra_parms -Dcassandra.logdir=/var/log/cassandra"
+     cassandra_parms="$cassandra_parms -Dcassandra.storagedir=$cassandra_storagedir"
+ 
+     if [ "x$pidpath" != "x" ]; then
+diff -ur o/bin/cassandra.in.sh n/bin/cassandra.in.sh
+--- o/bin/cassandra.in.sh	2016-05-31 17:31:35.217062234 +0200
++++ n/bin/cassandra.in.sh	2016-05-31 17:31:45.421162873 +0200
+@@ -14,63 +14,27 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-if [ "x$CASSANDRA_HOME" = "x" ]; then
+-    CASSANDRA_HOME="`dirname "$0"`/.."
+-fi
+-
+ # The directory where Cassandra's configs live (required)
+ if [ "x$CASSANDRA_CONF" = "x" ]; then
+-    CASSANDRA_CONF="$CASSANDRA_HOME/conf"
++    CASSANDRA_CONF="/etc"
+ fi
+ 
+-# This can be the path to a jar file, or a directory containing the 
+-# compiled classes. NOTE: This isn't needed by the startup script,
+-# it's just used here in constructing the classpath.
+-cassandra_bin="$CASSANDRA_HOME/build/classes/main"
+-cassandra_bin="$cassandra_bin:$CASSANDRA_HOME/build/classes/thrift"
+-#cassandra_bin="$CASSANDRA_HOME/build/cassandra.jar"
+-
+ # the default location for commitlogs, sstables, and saved caches
+ # if not set in cassandra.yaml
+-cassandra_storagedir="$CASSANDRA_HOME/data"
+-
+-# JAVA_HOME can optionally be set here
+-#JAVA_HOME=/usr/local/jdk6
++cassandra_storagedir="/var/lib/cassandra"
+ 
+ # The java classpath (required)
+-CLASSPATH="$CASSANDRA_CONF:$cassandra_bin"
++CLASSPATH="$CASSANDRA_CONF:`build-classpath cassandra/cassandra-all`"
+ 
+-for jar in "$CASSANDRA_HOME"/lib/*.jar; do
+-    CLASSPATH="$CLASSPATH:$jar"
+-done
++DEPS=( cassandra/cassandra-all cassandra/cassandra-thrift stringtemplate4 airline antlr3-runtime objectweb-asm/asm cassandra-java-driver/cassandra-driver-core commons-cli commons-codec commons-math3 commons-lang3 compress-lzf concurrent-trees concurrentlinkedhashmap-lru ecj guava high-scale-lib/high-scale-lib hppc jackson/jackson-core-asl jackson/jackson-mapper-asl jBCrypt jflex jna joda-time json_simple libthrift logback/logback-classic logback/logback-core lz4 metrics netty/netty-all ohc/ohc-core primitive metrics-reporter-config/reporter-config metrics-reporter-config/reporter-config-base sigar slf4j/api snakeyaml snappy-java snowball-java stream-lib disruptor-thrift-server javax.inject )
+ 
+-# JSR223 - collect all JSR223 engines' jars
+-for jsr223jar in "$CASSANDRA_HOME"/lib/jsr223/*/*.jar; do
+-    CLASSPATH="$CLASSPATH:$jsr223jar"
++for dep in "${DEPS[@]}"; do
++    CLASSPATH="$CLASSPATH:`build-classpath $dep`"
+ done
+-# JSR223/JRuby - set ruby lib directory
+-if [ -d "$CASSANDRA_HOME"/lib/jsr223/jruby/ruby ] ; then
+-    export JVM_OPTS="$JVM_OPTS -Djruby.lib=$CASSANDRA_HOME/lib/jsr223/jruby"
+-fi
+-# JSR223/JRuby - set ruby JNI libraries root directory
+-if [ -d "$CASSANDRA_HOME"/lib/jsr223/jruby/jni ] ; then
+-    export JVM_OPTS="$JVM_OPTS -Djffi.boot.library.path=$CASSANDRA_HOME/lib/jsr223/jruby/jni"
+-fi
+-# JSR223/Jython - set python.home system property
+-if [ -f "$CASSANDRA_HOME"/lib/jsr223/jython/jython.jar ] ; then
+-    export JVM_OPTS="$JVM_OPTS -Dpython.home=$CASSANDRA_HOME/lib/jsr223/jython"
+-fi
+-# JSR223/Scala - necessary system property
+-if [ -f "$CASSANDRA_HOME"/lib/jsr223/scala/scala-compiler.jar ] ; then
+-    export JVM_OPTS="$JVM_OPTS -Dscala.usejavacp=true"
+-fi
+ 
+ # set JVM javaagent opts to avoid warnings/errors
+ if [ "$JVM_VENDOR" != "OpenJDK" -o "$JVM_VERSION" \> "1.6.0" ] \
+       || [ "$JVM_VERSION" = "1.6.0" -a "$JVM_PATCH_VERSION" -ge 23 ]
+ then
+-    JAVA_AGENT="$JAVA_AGENT -javaagent:$CASSANDRA_HOME/lib/jamm-0.3.0.jar"
++    JAVA_AGENT="$JAVA_AGENT -javaagent:`build-classpath jamm`"
+ fi
+-
+-# Added sigar-bin to the java.library.path CASSANDRA-7838
+-JAVA_OPTS="$JAVA_OPTS:-Djava.library.path=$CASSANDRA_HOME/lib/sigar-bin"
+diff -ur o/bin/cqlsh.py n/bin/cqlsh.py
+--- o/bin/cqlsh.py	2016-06-09 09:28:15.171449161 +0200
++++ n/bin/cqlsh.py	2016-06-09 09:27:50.582255476 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/usr/bin/python
+ # -*- mode: Python -*-
+ 
+ # Licensed to the Apache Software Foundation (ASF) under one
+@@ -17,18 +17,6 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-""":"
+-# bash code here; finds a suitable python interpreter and execs this file.
+-# prefer unqualified "python" if suitable:
+-python -c 'import sys; sys.exit(not (0x020700b0 < sys.hexversion < 0x03000000))' 2>/dev/null \
+-    && exec python "$0" "$@"
+-for pyver in 2.7; do
+-    which python$pyver > /dev/null 2>&1 && exec python$pyver "$0" "$@"
+-done
+-echo "No appropriate python interpreter found." >&2
+-exit 1
+-":"""
+-
+ from __future__ import with_statement
+ 
+ import cmd
+diff -ur o/conf/cassandra-env.sh n/conf/cassandra-env.sh
+--- o/conf/cassandra-env.sh	2016-05-31 17:31:08.950803179 +0200
++++ n/conf/cassandra-env.sh	2016-05-31 17:31:12.420837403 +0200
+@@ -156,8 +156,8 @@
+     export MALLOC_ARENA_MAX=4
+ fi
+ 
+-#GC log path has to be defined here because it needs to access CASSANDRA_HOME
+-JVM_OPTS="$JVM_OPTS -Xloggc:${CASSANDRA_HOME}/logs/gc.log"
++#GC log path
++JVM_OPTS="$JVM_OPTS -Xloggc:/var/log/cassandra/gc.log"
+ 
+ # Here we create the arguments that will get passed to the jvm when
+ # starting cassandra.
+@@ -207,7 +207,7 @@
+ JVM_OPTS="$JVM_OPTS -XX:CompileCommandFile=$CASSANDRA_CONF/hotspot_compiler"
+ 
+ # add the jamm javaagent
+-JVM_OPTS="$JVM_OPTS -javaagent:$CASSANDRA_HOME/lib/jamm-0.3.0.jar"
++JVM_OPTS="$JVM_OPTS -javaagent:`build-classpath jamm`"
+ 
+ # set jvm HeapDumpPath with CASSANDRA_HEAPDUMP_DIR
+ if [ "x$CASSANDRA_HEAPDUMP_DIR" != "x" ]; then
+@@ -266,7 +266,7 @@
+ # Cassandra uses SIGAR to capture OS metrics CASSANDRA-7838
+ # for SIGAR we have to set the java.library.path
+ # to the location of the native libraries.
+-JVM_OPTS="$JVM_OPTS -Djava.library.path=$CASSANDRA_HOME/lib/sigar-bin"
++JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib64/sigar"
+ 
+ JVM_OPTS="$JVM_OPTS $MX4J_ADDRESS"
+ JVM_OPTS="$JVM_OPTS $MX4J_PORT"
+diff -ur o/tools/bin/cassandra-stress n/tools/bin/cassandra-stress
+--- o/tools/bin/cassandra-stress	2016-06-02 16:11:31.372614863 +0200
++++ n/tools/bin/cassandra-stress	2016-06-02 16:11:38.771687061 +0200
+@@ -48,6 +48,8 @@
+     exit 1
+ fi
+ 
++CLASSPATH="$CLASSPATH:`build-classpath cassandra-stress`"
++
+ "$JAVA" -server -ea -cp "$CLASSPATH" $JVM_OPTS \
+         -Dcassandra.storagedir="$cassandra_storagedir" \
+         -Dlogback.configurationFile=logback-tools.xml \
+diff -ur o/tools/bin/cassandra-stressd n/tools/bin/cassandra-stressd
+--- o/tools/bin/cassandra-stressd	2016-06-02 16:11:31.373614873 +0200
++++ n/tools/bin/cassandra-stressd	2016-06-02 16:11:38.771687061 +0200
+@@ -49,6 +49,8 @@
+     exit 1
+ fi
+ 
++CLASSPATH="$CLASSPATH:`build-classpath cassandra-stress`"
++
+ case "$1" in
+   start)
+     echo "Starting $DESC: "

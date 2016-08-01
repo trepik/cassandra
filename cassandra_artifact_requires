@@ -1,0 +1,62 @@
+artifact					in FED		required	Notes
+mvn(org.xerial.snappy:snappy-java)		1.0.5-5		1.1.1.7		#1020835
+mvn(net.jpountz.lz4:lz4)			1.3.0-1		1.3.0		DONE #1270317
+mvn(com.ning:compress-lzf)			1.0.3-3		0.8.4
+mvn(com.google.guava:guava)			18.0-4		18.0
+mvn(org.apache.commons:commons-lang3)		3.4-2		3.1
+mvn(commons-cli:commons-cli)			1.3.1-2		1.1
+mvn(commons-codec:commons-codec)		1.10-2		1.2
+mvn(org.apache.commons:commons-math3)		3.4.1-2		3.2
+mvn(com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru)	1.4.2-2		1.4
+mvn(org.antlr:antlr)				3.5.2-9 10	3.5.2
+mvn(org.antlr:antlr-runtime)			3.5.2-9 10	3.5.2
+mvn(org.slf4j:slf4j-api)			1.7.12-2	1.7.7
+mvn(org.slf4j:log4j-over-slf4j)			1.7.12-2	1.7.7
+mvn(org.slf4j:jcl-over-slf4j)			1.7.12-2	1.7.7
+mvn(org.codehaus.jackson:jackson-core-asl)	1.9.11-6	1.9.2
+mvn(org.codehaus.jackson:jackson-mapper-asl)	1.9.11-6	1.9.2
+mvn(com.googlecode.json-simple:json-simple)	1.1.1-11	1.1
+mvn(com.boundary:high-scale-lib)		1.1.4-5		1.0.6		#1308556 (com.github.stephenc.high-scale-lib)
+mvn(org.yaml:snakeyaml)				1.13-9		1.11
+mvn(org.mindrot:jbcrypt)			0.4-2		0.3m
+mvn(io.dropwizard.metrics:metrics-core)		3.0.1-6		3.1.0		f24 (com.codahale.metrics:metrics-core) 
+mvn(com.thinkaurelius.thrift:thrift-server)	0.3.8-2		0.3.7		DONE #1306575
+mvn(com.addthis.metrics:reporter-config3)	3.0.0-1		3.0.0		DONE #1306629
+mvn(com.clearspring.analytics:stream)		2.6.0-2		2.5.2
+mvn(ch.qos.logback:logback-core)		1.1.2-5		1.1.3		f24
+mvn(ch.qos.logback:logback-classic)		1.1.2-5		1.1.3		f24
+mvn(org.apache.thrift:libthrift)		0.9.1-16 17	0.9.2		#1183877 
+mvn(org.apache.cassandra:cassandra-thrift)			3.2.1		??
+mvn(org.apache.cassandra:cassandra-all)				3.2.1		??
+mvn(org.apache.hadoop:hadoop-core)				1.0.3		DONE #1306959
+mvn(org.apache.hadoop:hadoop-minicluster)	2.4.1-11 12	1.0.3
+mvn(net.java.dev.jna:jna)			4.1.0-9		4.0.0
+mvn(com.github.jbellis:jamm)			0.3.1-1		0.3.0		DONE #1031466		
+mvn(io.netty:netty-all)				4.0.28-2	4.0.23Final	
+mvn(joda-time:joda-time)			2.8.1-1		2.4
+mvn(org.fusesource:sigar)			1.6.5-0.15	1.6.4
+mvn(org.eclipse.jdt.core.compiler:ecj)		4.5.1-1		4.4.2
+mvn(junit:junit)				4.12-3		4.6
+mvn(org.apache.rat:apache-rat)			0.11-2		0.10		#1308584 (org.apache.rat:apache-rat-project:pom:)
+mvn(org.jacoco:org.jacoco.ant)			0.7.5-2		0.7.5
+mvn(org.jacoco:org.jacoco.agent)		0.7.5-2		0.7.5
+mvn(org.openjdk.jmh:jmh-core)			1.10.5-2	1.1.1
+mvn(org.openjdk.jmh:jmh-generator-annprocess)	1.10.5-2	1.1.1
+mvn(io.airlift:airline)				0.7-2		0.6
+mvn(com.google.code.findbugs:jsr305)		0-0.18		2.0.2
+mvn(org.caffinitas.ohc:ohc-core)		0.4.2-4		0.4.2		DONE #1306945
+mvn(net.ju-n.compile-command-annotations:compile-command-annotations)	1.2.0-1	1.2.0		DONE #1341013
+mvn(org.antlr:ST4)					4.0.8-2		4.0.8
+mvn(io.dropwizard.metrics:metrics-logback)	3.0.1-6		3.1.0		f24 (com.codahale.metrics:metrics-core)
+mvn(org.ow2.asm:asm)				5.0.3-2		5.0.4		f24
+mvn(com.addthis.metrics:reporter-config-base)	3.0.0-1		3.0.0		DONE #1306629
+mvn(com.lmax:disruptor)				3.3.2-3		3.0.1
+mvn(org.caffinitas.ohc:ohc-core-j8)		0.4.2-4		0.4.2		DONE #1306945
+mvn(javax.inject:javax.inject)			1-21		1
+mvn(com.googlecode.concurrent-trees:concurrent-trees)2.5.0-1	2.4.0		DONE #1329199
+mvn(com.carrotsearch:hppc)			0.6.1-3		0.5.4
+mvn(net.mintern:primitive)			1.2.2-1		1.0		DONE #1329201
+mvn(com.github.rholder:snowball-stemmer)			1.3.0.581.1	just a repacking of: mvn(org.tartarus:snowball)
+mvn(com.datastax.cassandra:cassandra-driver-core)3.0.0-1	3.0.0		DONE #1324734
+mvn(org.jboss.byteman:byteman)			2.1.4.1-5	3.0.3		??
+
