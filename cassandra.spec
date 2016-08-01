@@ -2,15 +2,13 @@
 %global allocated_gid 156
 %global allocated_uid 156
 
-#%global _binaries_in_noarch_packages_terminate_build   0
-
 Name:           cassandra
 Version:        3.5
 Release:        0%{?dist}
 Summary:        OpenSource database Apache Cassandra
 
 License:        ASL 2.0
-URL:            http://cassandra.apache.org/
+URL:            http://%{name}.apache.org/
 Source0:        https://github.com/apache/%{name}/archive/%{name}-%{version}.tar.gz
 Source1:	%{name}.logrotate
 Source2:	%{name}d.service
@@ -30,7 +28,6 @@ Patch4:		%{name}-thrift.patch
 # add two more parameters for SubstituteLogger constructor in slf4j
 Patch5:		%{name}-slf4j.patch
 
-#BuildArch:      noarch
 Requires:	jpackage-utils
 Requires(pre):  shadow-utils
 
@@ -49,6 +46,7 @@ BuildRequires:  mvn(io.dropwizard.metrics:metrics-core)
 BuildRequires:  mvn(com.googlecode.json-simple:json-simple)
 BuildRequires:  mvn(net.ju-n.compile-command-annotations:compile-command-annotations)
 # using high-scale-lib from stephenc, no Cassandra original
+# https://bugzilla.redhat.com/show_bug.cgi?id=1308556
 #BuildRequires:  mvn(com.boundary:high-scale-lib)
 BuildRequires:  mvn(com.github.stephenc.high-scale-lib:high-scale-lib)
 BuildRequires:  mvn(com.datastax.cassandra:cassandra-driver-core)
@@ -58,6 +56,7 @@ BuildRequires:  mvn(org.mindrot:jbcrypt)
 BuildRequires:  mvn(com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru)
 BuildRequires:  mvn(org.caffinitas.ohc:ohc-core)
 # using hadoop-common instead of hadoop-core, no Cassandra original
+# https://bugzilla.redhat.com/show_bug.cgi?id=1306959
 #BuildRequires:  mvn(org.apache.hadoop:hadoop-core)
 # temporarly removed as it is optional
 #BuildRequires:  hadoop-common
@@ -85,6 +84,7 @@ BuildRequires:  mvn(org.apache.ant:ant-junit)
 BuildRequires:  mvn(org.jboss.byteman:byteman)
 BuildRequires:  mvn(org.openjdk.jmh:jmh-core)
 
+# leftovers
 #BuildRequires:  mvn(org.apache.hadoop:hadoop-minicluster)
 #BuildRequires:  mvn(junit:junit)
 #BuildRequires:	 hadoop-common
@@ -104,7 +104,6 @@ BuildRequires:  mvn(org.openjdk.jmh:jmh-core)
 #BuildRequires:  mvn(com.codahale.metrics:metrics-core)
 #BuildRequires:  mvn(org.slf4j:log4j-over-slf4j)
 #BuildRequires:  mvn(io.netty:netty-all)
-
 
 %description
 Cassandra is a partitioned row store. Rows are organized into tables with
@@ -247,9 +246,9 @@ ln -sf $(build-classpath jmh/jmh-core) lib/jmh-core-1.1.1.jar
 # binaries dependencies
 ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 
+# leftovers
 #ln -sf $(build-classpath disruptor) lib/disruptor-3.0.1.jar
 #ln -sf $(build-classpath slf4j/jcl-over-slf4j) lib/jcl-over-slf4j-1.7.7.jar
-
 # org.apache.hadoop:hadoop-core,hadoop-minicluster:1.0.3 org.apache.hadoop.conf.Configuration
 #rm -r src/java/org/apache/cassandra/hadoop
 
