@@ -258,12 +258,16 @@ ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 %patch1 -p1
 # scripts patch
 %patch2 -p1
+%if 0%{?fedora} > 23
 # hppc patch
 %patch3 -p1
+%endif
 # thrift patch
 %patch4 -p1
+%if 0%{?fedora} > 23
 # slf4j patch
 %patch5 -p1
+%endif
 
 %mvn_package "org.apache.%{name}:%{name}-parent:pom:3.5" %{name}-parent
 %mvn_package ":%{name}-thrift"  %{name}-thrift
