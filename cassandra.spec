@@ -41,11 +41,11 @@ BuildRequires:  python2-devel
 BuildRequires:  Cython
 BuildRequires:  maven-local
 BuildRequires:	ant
-BuildRequires:  mvn(org.antlr:antlr)
+BuildRequires:  %{?scl_java_prefix}antlr-tool
 BuildRequires:  mvn(de.jflex:jflex)
 BuildRequires:  mvn(org.apache.thrift:libthrift)
 BuildRequires:  mvn(com.github.jbellis:jamm)
-BuildRequires:  mvn(com.clearspring.analytics:stream)
+BuildRequires:  %{?scl_prefix}stream-lib
 # not supporting f23 any more
 BuildRequires:  mvn(io.dropwizard.metrics:metrics-core)
 BuildRequires:  mvn(com.googlecode.json-simple:json-simple)
@@ -56,8 +56,8 @@ BuildRequires:  mvn(com.github.stephenc.high-scale-lib:high-scale-lib)
 # temporarly removed as it is optional
 # BuildRequires:  mvn(com.datastax.cassandra:cassandra-driver-core)
 BuildRequires:  mvn(net.jpountz.lz4:lz4)
-BuildRequires:  mvn(org.xerial.snappy:snappy-java)
-BuildRequires:  mvn(org.mindrot:jbcrypt)
+BuildRequires:  %{?scl_prefix}snappy-java
+BuildRequires:  %{?scl_prefix}jBCrypt
 BuildRequires:  mvn(com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru)
 BuildRequires:  mvn(org.caffinitas.ohc:ohc-core)
 # using hadoop-common instead of hadoop-core, no Cassandra original
@@ -65,7 +65,7 @@ BuildRequires:  mvn(org.caffinitas.ohc:ohc-core)
 # temporarly removed as it is optional
 #BuildRequires:  hadoop-common
 #BuildRequires:  hadoop-mapreduce
-BuildRequires:  mvn(com.googlecode.concurrent-trees:concurrent-trees)
+BuildRequires:  %{?scl_prefix}concurrent-trees
 BuildRequires:  mvn(com.carrotsearch:hppc)
 # using repackaging of the snowball stemmer so that it's available on Maven Central 
 #BuildRequires:  mvn(com.github.rholder:snowball-stemmer)
@@ -76,14 +76,14 @@ BuildRequires:  mvn(ch.qos.logback:logback-classic)
 BuildRequires:  mvn(com.addthis.metrics:reporter-config3)
 BuildRequires:  mvn(com.ning:compress-lzf)
 BuildRequires:  mvn(com.thinkaurelius.thrift:thrift-server)
-BuildRequires:  mvn(io.airlift:airline)
+BuildRequires:  %{?scl_prefix}airline
 BuildRequires:  mvn(org.fusesource:sigar)
 BuildRequires:  mvn(org.slf4j:log4j-over-slf4j)
 BuildRequires:  mvn(org.slf4j:jcl-over-slf4j)
 # test dependencies
 BuildRequires:  mvn(org.apache.ant:ant-junit)
 BuildRequires:  mvn(org.jboss.byteman:byteman)
-BuildRequires:  mvn(org.openjdk.jmh:jmh-core)
+BuildRequires:  %{?scl_prefix}jmh
 # scl dependencies
 %{?scl:Requires: %scl_require rh-maven33}
 
