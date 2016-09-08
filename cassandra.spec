@@ -1,10 +1,10 @@
 # not reserved yet
-%global allocated_gid 156
-%global allocated_uid 156
+%global allocated_gid 193
+%global allocated_uid 193
 
 Name:           cassandra
 Version:        3.5
-Release:        0%{?dist}
+Release:        1%{?dist}
 Summary:        OpenSource database Apache Cassandra
 
 License:        ASL 2.0
@@ -13,6 +13,13 @@ Source0:        https://github.com/apache/%{name}/archive/%{name}-%{version}.tar
 Source1:	%{name}.logrotate
 Source2:	%{name}d.service
 Source3:	%{name}-tmpfile
+# pom files are not generated but used are the ones from mavencentral
+# because of orphaned mavent-ant-task package doing the work in this case
+# failed koji build: http://koji.fedoraproject.org/koji/taskinfo?taskID=15542960
+Source4:	http://central.maven.org/maven2/org/apache/%{name}/%{name}-all/%{version}/%{name}-all-%{version}.pom
+Source5:	http://central.maven.org/maven2/org/apache/%{name}/%{name}-thrift/%{version}/%{name}-thrift-%{version}.pom
+Source6:	http://central.maven.org/maven2/org/apache/%{name}/%{name}-clientutil/%{version}/%{name}-clientutil-%{version}.pom
+Source7:	http://central.maven.org/maven2/org/apache/%{name}/%{name}-parent/%{version}/%{name}-parent-%{version}.pom
 
 #fix encoding error
 Patch0:		%{name}-build.patch
@@ -269,6 +276,17 @@ ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 %patch5 -p1
 %endif
 
+# copy pom files
+mkdir build
+cp -p %{SOURCE4} build/%{name}-%{version}.pom
+cp -p %{SOURCE5} build/%{name}-thrift-%{version}.pom
+cp -p %{SOURCE6} build/%{name}-clientutil-%{version}.pom
+cp -p %{SOURCE7} build/%{name}-%{version}-parent.pom
+
+# update dependencies that are not correct in the downloaded pom files
+%pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{name}-%{version}.pom
+%pom_change_dep com.github.rholder:snowball-stemmer org.tartarus:snowball build/%{name}-thrift-%{version}.pom
+
 %mvn_package "org.apache.%{name}:%{name}-parent:pom:3.5" %{name}-parent
 %mvn_package ":%{name}-thrift"  %{name}-thrift
 %mvn_package ":%{name}-clientutil" %{name}-clientutil
@@ -351,10 +369,10 @@ exit 0
 %doc README.asc CHANGES.txt NEWS.txt
 %license LICENSE.txt NOTICE.txt
 # just for testing
-#%dir %%attr(755, %%{name}, root) %%{_sharedstatedir}/%%{name}
-#%dir %%attr(750, %%{name}, root) %%{_localstatedir}/log/%%{name}
-%dir %attr(755, trepik, root) %{_sharedstatedir}/%{name}
-%dir %attr(750, trepik, root) %{_localstatedir}/log/%{name}
+#%dir %%attr(755, trepik, root) %%{_sharedstatedir}/%%{name}
+#%dir %%attr(750, trepik, root) %%{_localstatedir}/log/%%{name}
+%dir %attr(755, %{name}, root) %{_sharedstatedir}/%{name}
+%dir %attr(750, %{name}, root) %{_localstatedir}/log/%{name}
 %attr(755, root, root) %{_bindir}/%{name}
 %attr(755, root, root) %{_bindir}/%{name}.in.sh
 %config(noreplace) %{_sysconfdir}/%{name}-env.sh
@@ -406,4 +424,7 @@ exit 0
 %license LICENSE.txt
 
 %changelog
+* Thu Sep 08 2016 Tomas Repik <trepik@redhat.com> - 3.5-1
+- initial package
+
 
