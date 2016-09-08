@@ -1,10 +1,10 @@
 # not reserved yet
-%global allocated_gid 156
-%global allocated_uid 156
+%global allocated_gid 193
+%global allocated_uid 193
 
 Name:           cassandra
 Version:        3.5
-Release:        0%{?dist}
+Release:        1%{?dist}
 Summary:        OpenSource database Apache Cassandra
 
 License:        ASL 2.0
@@ -351,10 +351,10 @@ exit 0
 %doc README.asc CHANGES.txt NEWS.txt
 %license LICENSE.txt NOTICE.txt
 # just for testing
-#%dir %%attr(755, %%{name}, root) %%{_sharedstatedir}/%%{name}
-#%dir %%attr(750, %%{name}, root) %%{_localstatedir}/log/%%{name}
-%dir %attr(755, trepik, root) %{_sharedstatedir}/%{name}
-%dir %attr(750, trepik, root) %{_localstatedir}/log/%{name}
+#%dir %%attr(755, trepik, root) %%{_sharedstatedir}/%%{name}
+#%dir %%attr(750, trepik, root) %%{_localstatedir}/log/%%{name}
+%dir %attr(755, %{name}, root) %{_sharedstatedir}/%{name}
+%dir %attr(750, %{name}, root) %{_localstatedir}/log/%{name}
 %attr(755, root, root) %{_bindir}/%{name}
 %attr(755, root, root) %{_bindir}/%{name}.in.sh
 %config(noreplace) %{_sysconfdir}/%{name}-env.sh
@@ -406,4 +406,7 @@ exit 0
 %license LICENSE.txt
 
 %changelog
+* Thu Sep 08 2016 Tomas Repik <trepik@redhat.com> - 3.5-1
+- initial package
+
 
