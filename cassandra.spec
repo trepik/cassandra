@@ -35,12 +35,9 @@ Patch4:		%{name}-thrift.patch
 # add two more parameters for SubstituteLogger constructor in slf4j
 Patch5:		%{name}-slf4j.patch
 
-Requires:	jpackage-utils
 Requires(pre):  shadow-utils
 
 BuildRequires:  systemd
-BuildRequires:  python2-devel
-BuildRequires:  Cython
 BuildRequires:  maven-local
 BuildRequires:	ant
 BuildRequires:  mvn(org.antlr:antlr)
@@ -131,6 +128,7 @@ Parent POM for %{name}.
 %package        thrift
 Summary:        Thrift for %{name}
 Requires:       %{name} = %{version}-%{release}
+BuildArch:	noarch
 
 %description thrift
 Allows portable (across programming languages) access to the database. Thrift
@@ -139,6 +137,8 @@ question based on a Thrift IDL file describing the service.
 
 %package        clientutil
 Summary:        Client utilities for %{name}
+BuildRequires:  python2-devel
+BuildRequires:  Cython
 Requires:       %{name} = %{version}-%{release}
 Requires:	python-cassandra-driver
 
@@ -148,6 +148,7 @@ Utilities usable by client for %{name}
 %package        stress
 Summary:        Stress testing utility for %{name}
 Requires:       %{name} = %{version}-%{release}
+BuildArch:	noarch
 
 %description stress
 The cassandra-stress tool is a Java-based stress testing utility
@@ -155,6 +156,7 @@ for benchmarking and load testing a Cassandra cluster.
 
 %package        javadoc
 Summary:        Javadoc for %{name}
+BuildArch:	noarch
 
 %description javadoc
 This package contains the API documentation for %{name}.
@@ -292,7 +294,7 @@ cp -p %{SOURCE7} build/%{name}-%{version}-parent.pom
 %mvn_package ":%{name}-clientutil" %{name}-clientutil
 
 %build
-ant jar javadoc -Drelease=true 
+ant jar javadoc -Drelease=true
 
 # Build the cqlshlib Python module
 pushd pylib
@@ -345,7 +347,7 @@ install -p -D -m 755 tools/bin/sstablemetadata %{buildroot}%{_bindir}/sstablemet
 install -p -D -m 755 tools/bin/sstableofflinerelevel %{buildroot}%{_bindir}/sstableofflinerelevel
 install -p -D -m 755 tools/bin/sstablerepairedset %{buildroot}%{_bindir}/sstablerepairedset
 install -p -D -m 755 tools/bin/sstablesplit %{buildroot}%{_bindir}/sstablesplit
-install -p -D -m 755 build/tools/lib/%{name}-stress.jar %{buildroot}%{_javadir}/%{name}-stress.jar
+install -p -D -m 755 build/tools/lib/%{name}-stress.jar %{buildroot}%{_javadir}/%{name}/%{name}-stress.jar
 install -p -D -m 755 tools/bin/%{name}-stress %{buildroot}%{_bindir}/%{name}-stress
 install -p -D -m 755 tools/bin/%{name}-stressd %{buildroot}%{_bindir}/%{name}-stressd
 
@@ -416,12 +418,12 @@ exit 0
 %files stress  
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/%{name}-stress
-%attr(755, root, root) %{_javadir}/%{name}-stress.jar
+%attr(755, root, root) %{_javadir}/%{name}/%{name}-stress.jar
 %attr(755, root, root) %{_bindir}/%{name}-stressd
 %attr(755, root, root) %{_bindir}/%{name}.in.sh
 
 %files javadoc -f .mfiles-javadoc
-%license LICENSE.txt
+%license LICENSE.txt NOTICE.txt
 
 %changelog
 * Thu Sep 08 2016 Tomas Repik <trepik@redhat.com> - 3.5-1

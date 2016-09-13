@@ -1,5 +1,5 @@
 --- cassandra-cassandra-3.5/build.xml	2016-04-09 06:22:00.000000000 +0200
-+++ cassandra-cassandra-3.5new/build.xml	2016-09-08 16:04:03.248635315 +0200
++++ new/build.xml	2016-09-13 14:42:31.829185279 +0200
 @@ -17,7 +17,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
@@ -159,7 +159,16 @@
              description="Assemble Cassandra JAR files">
        <mkdir dir="${build.classes.main}/META-INF" />
        <mkdir dir="${build.classes.thrift}/META-INF" />
-@@ -903,7 +904,7 @@
+@@ -870,8 +871,6 @@
+           <attribute name="Implementation-Vendor" value="Apache"/>
+           <attribute name="Premain-Class"
+                      value="org.apache.cassandra.infrastructure.continuations.CAgent"/>
+-          <attribute name="Class-Path"
+-                     value="${ant.project.name}-clientutil-${version}.jar ${ant.project.name}-thrift-${version}.jar" />
+         <!-- </section> -->
+         </manifest>
+       </jar>
+@@ -903,7 +902,7 @@
        </manifest>
        <mkdir dir="${stress.build.classes}/META-INF" />
        <mkdir dir="${build.dir}/tools/lib/" />
