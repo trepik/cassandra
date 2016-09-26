@@ -1,6 +1,7 @@
-diff -ur o/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java n/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java
---- o/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java	2016-05-31 10:54:52.042721768 +0200
-+++ n/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java	2016-05-31 10:55:16.161964628 +0200
+Only in new/: cassandra-hppc.patch
+diff -ur cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java new/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java
+--- cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java	2016-06-06 20:30:44.000000000 +0200
++++ new/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.java	2016-09-15 12:42:27.934053221 +0200
 @@ -33,7 +33,7 @@
  import com.google.common.annotations.VisibleForTesting;
  
@@ -19,9 +20,9 @@ diff -ur o/src/java/org/apache/cassandra/index/sasi/analyzer/StandardAnalyzer.ja
  
          static
          {
-diff -ur o/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java n/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java
---- o/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java	2016-05-31 10:54:52.042721768 +0200
-+++ n/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java	2016-05-31 10:55:16.161964628 +0200
+diff -ur cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java new/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java
+--- cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java	2016-06-06 20:30:44.000000000 +0200
++++ new/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder.java	2016-09-15 12:42:27.934053221 +0200
 @@ -23,7 +23,7 @@
  import org.apache.cassandra.utils.AbstractIterator;
  import org.apache.cassandra.utils.Pair;
@@ -49,10 +50,10 @@ diff -ur o/src/java/org/apache/cassandra/index/sasi/disk/DynamicTokenTreeBuilder
  
              for (LongCursor offset : newEntry.getValue())
                  found.add(offset.value);
-diff -ur o/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java n/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java
---- o/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java	2016-05-31 10:54:52.042721768 +0200
-+++ n/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java	2016-05-31 10:55:16.161964628 +0200
-@@ -175,7 +175,7 @@
+diff -ur cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java new/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java
+--- cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java	2016-06-06 20:30:44.000000000 +0200
++++ new/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java	2016-09-15 12:42:27.934053221 +0200
+@@ -186,7 +186,7 @@
          minKey = (minKey == null || keyComparator.compare(minKey, key.getKey()) > 0) ? key.getKey() : minKey;
          maxKey = (maxKey == null || keyComparator.compare(maxKey, key.getKey()) < 0) ? key.getKey() : maxKey;
  
@@ -61,9 +62,10 @@ diff -ur o/src/java/org/apache/cassandra/index/sasi/disk/OnDiskIndexBuilder.java
          // + 40 bytes for the TreeMap.Entry + 8 bytes for the token (key).
          // in the case of hash collision for the token we may overestimate but this is extremely rare
          estimatedBytes += 60 + 40 + 8;
-diff -ur o/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java n/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java
---- o/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java	2016-05-31 10:54:52.042721768 +0200
-+++ n/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java	2016-05-31 10:55:16.161964628 +0200
+Only in new/src/java/org/apache/cassandra/index/sasi/disk: OnDiskIndexBuilder.java.orig
+diff -ur cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java new/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java
+--- cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java	2016-06-06 20:30:44.000000000 +0200
++++ new/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java	2016-09-15 12:42:27.935053230 +0200
 @@ -27,7 +27,7 @@
  import org.apache.cassandra.index.sasi.utils.RangeIterator;
  import org.apache.cassandra.utils.MergeIterator;
@@ -89,9 +91,9 @@ diff -ur o/src/java/org/apache/cassandra/index/sasi/disk/TokenTree.java n/src/ja
 -}
 \ No newline at end of file
 +}
-diff -ur o/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java n/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java
---- o/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java	2016-05-31 10:54:52.042721768 +0200
-+++ n/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java	2016-05-31 10:55:16.161964628 +0200
+diff -ur cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java new/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java
+--- cassandra-cassandra-3.7/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java	2016-06-06 20:30:44.000000000 +0200
++++ new/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java	2016-09-15 12:42:27.935053230 +0200
 @@ -29,7 +29,7 @@
  import org.apache.cassandra.index.sasi.utils.CombinedValue;
  import org.apache.cassandra.index.sasi.utils.RangeIterator;
@@ -117,9 +119,9 @@ diff -ur o/src/java/org/apache/cassandra/index/sasi/memory/KeyRangeIterator.java
 -}
 \ No newline at end of file
 +}
-diff -ur o/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java n/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java
---- o/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java	2016-05-31 10:54:41.321611465 +0200
-+++ n/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java	2016-05-31 10:55:04.352848421 +0200
+diff -ur cassandra-cassandra-3.7/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java new/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java
+--- cassandra-cassandra-3.7/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java	2016-06-06 20:30:44.000000000 +0200
++++ new/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java	2016-09-15 12:42:27.935053230 +0200
 @@ -43,7 +43,7 @@
  import junit.framework.Assert;
  import org.junit.Test;
@@ -166,9 +168,9 @@ diff -ur o/test/unit/org/apache/cassandra/index/sasi/disk/TokenTreeTest.java n/t
                      offsetSet.add(i);
                      put(i, offsetSet);
                  }
-diff -ur o/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java n/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java
---- o/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java	2016-05-31 10:54:41.321611465 +0200
-+++ n/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java	2016-05-31 10:55:04.352848421 +0200
+diff -ur cassandra-cassandra-3.7/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java new/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java
+--- cassandra-cassandra-3.7/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java	2016-06-06 20:30:44.000000000 +0200
++++ new/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java	2016-09-15 12:42:27.935053230 +0200
 @@ -23,7 +23,7 @@
  import java.util.Iterator;
  import java.util.List;
@@ -187,9 +189,9 @@ diff -ur o/test/unit/org/apache/cassandra/index/sasi/utils/LongIterator.java n/t
          }
  
          @Override
-diff -ur o/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java n/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java
---- o/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java	2016-05-31 10:54:41.321611465 +0200
-+++ n/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java	2016-05-31 10:55:04.352848421 +0200
+diff -ur cassandra-cassandra-3.7/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java new/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java
+--- cassandra-cassandra-3.7/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java	2016-06-06 20:30:44.000000000 +0200
++++ new/test/unit/org/apache/cassandra/index/sasi/utils/RangeIntersectionIteratorTest.java	2016-09-15 12:42:27.935053230 +0200
 @@ -27,7 +27,7 @@
  import org.apache.cassandra.index.sasi.utils.RangeIntersectionIterator.BounceIntersectionIterator;
  import org.apache.cassandra.io.util.FileUtils;

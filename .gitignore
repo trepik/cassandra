@@ -1,6 +1,6 @@
-/cassandra-3.5-1.fc23.src.rpm
-/cassandra-3.5.tar.gz
-/cassandra-all-3.5.pom
-/cassandra-clientutil-3.5.pom
-/cassandra-parent-3.5.pom
-/cassandra-thrift-3.5.pom
+/cassandra-*.src.rpm
+/cassandra-*.tar.gz
+/cassandra-all-*.pom
+/cassandra-clientutil-*.pom
+/cassandra-parent-*.pom
+/cassandra-thrift-*.pom

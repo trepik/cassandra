@@ -3,8 +3,8 @@
 %global allocated_uid 193
 
 Name:           cassandra
-Version:        3.5
-Release:        1%{?dist}
+Version:        3.7
+Release:        0%{?dist}
 Summary:        OpenSource database Apache Cassandra
 
 License:        ASL 2.0
@@ -82,6 +82,7 @@ BuildRequires:  mvn(org.slf4j:log4j-over-slf4j)
 BuildRequires:  mvn(org.slf4j:jcl-over-slf4j)
 BuildRequires:  mvn(org.codehaus.jackson:jackson-core-asl)
 BuildRequires:  mvn(org.eclipse.jdt.core.compiler:ecj)
+BuildRequires:  mvn(com.github.ben-manes.caffeine:caffeine)
 
 # test dependencies
 BuildRequires:  mvn(org.apache.ant:ant-junit)
@@ -121,6 +122,7 @@ JDBC connector for use with MySQL and MariaDB database servers.
 
 %package parent
 Summary:        Parent POM for %{name}
+BuildArch:	noarch
 
 %description parent
 Parent POM for %{name}.
@@ -141,6 +143,7 @@ BuildRequires:  python2-devel
 BuildRequires:  Cython
 Requires:       %{name} = %{version}-%{release}
 Requires:	python-cassandra-driver
+Provides:	cqlsh
 
 %description clientutil
 Utilities usable by client for %{name}
@@ -321,7 +324,6 @@ mkdir -p %{buildroot}%{_sharedstatedir}/%{name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{name}
 install -p -D -m 644 "%{SOURCE1}"  %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
-#%jpackage_script org.apache.cassandra.service.CassandraDaemon "" "" %%{classpath} cassandra true
 install -p -D -m 755 bin/%{name} %{buildroot}%{_bindir}/%{name}
 install -p -D -m 755 bin/%{name}.in.sh %{buildroot}%{_bindir}/%{name}.in.sh
 install -p -D -m 755 conf/%{name}-env.sh %{buildroot}%{_sysconfdir}/%{name}-env.sh
@@ -366,6 +368,10 @@ if ! getent passwd %{name} >/dev/null ; then
   fi
 fi
 exit 0
+
+%check
+#ant test
+%{__pythonX} setup.py test
 
 %files -f .mfiles
 %doc README.asc CHANGES.txt NEWS.txt
