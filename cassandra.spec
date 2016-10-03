@@ -21,9 +21,9 @@ Source5:	http://central.maven.org/maven2/org/apache/%{name}/%{name}-thrift/%{ver
 Source6:	http://central.maven.org/maven2/org/apache/%{name}/%{name}-clientutil/%{version}/%{name}-clientutil-%{version}.pom
 Source7:	http://central.maven.org/maven2/org/apache/%{name}/%{name}-parent/%{version}/%{name}-parent-%{version}.pom
 
-#fix encoding error
+# fix encoding error
 Patch0:		%{name}-build.patch
-#airline0.7 imports fix
+# airline0.7 imports fix
 Patch1:		%{name}-airline0.7.patch
 # modify installed scripts
 Patch2:		%{name}-scripts.patch
@@ -121,6 +121,7 @@ JDBC connector for use with MySQL and MariaDB database servers.
 
 %package parent
 Summary:        Parent POM for %{name}
+BuildArch:	noarch
 
 %description parent
 Parent POM for %{name}.
@@ -137,13 +138,22 @@ question based on a Thrift IDL file describing the service.
 
 %package        clientutil
 Summary:        Client utilities for %{name}
+Requires:       %{name} = %{version}-%{release}
+
+%description clientutil
+Utilities usable by client for %{name}
+
+%package        python2-cqlshlib
+Summary:        Commandline interface for %{name}
 BuildRequires:  python2-devel
 BuildRequires:  Cython
 Requires:       %{name} = %{version}-%{release}
 Requires:	python-cassandra-driver
+Provides:	cqlsh
+%{?python_provide:%python_provide python2-cqlshlib}
 
-%description clientutil
-Utilities usable by client for %{name}
+%description python2-cqlshlib
+Commandline client used to communicate with %{name} server.
 
 %package        stress
 Summary:        Stress testing utility for %{name}
@@ -321,7 +331,6 @@ mkdir -p %{buildroot}%{_sharedstatedir}/%{name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{name}
 install -p -D -m 644 "%{SOURCE1}"  %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
-#%jpackage_script org.apache.cassandra.service.CassandraDaemon "" "" %%{classpath} cassandra true
 install -p -D -m 755 bin/%{name} %{buildroot}%{_bindir}/%{name}
 install -p -D -m 755 bin/%{name}.in.sh %{buildroot}%{_bindir}/%{name}.in.sh
 install -p -D -m 755 conf/%{name}-env.sh %{buildroot}%{_sysconfdir}/%{name}-env.sh
@@ -367,6 +376,14 @@ if ! getent passwd %{name} >/dev/null ; then
 fi
 exit 0
 
+%check
+# tests won't pass for some reason, filed a bug on Jira 
+# https://issues.apache.org/jira/browse/CASSANDRA-12708
+#ant test
+# python tests do not work also
+# https://paste.fedoraproject.org/442576/54966211/raw/ 
+#%{__python2} pylib/setup.py test
+
 %files -f .mfiles
 %doc README.asc CHANGES.txt NEWS.txt
 %license LICENSE.txt NOTICE.txt
@@ -396,11 +413,7 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 
 %files clientutil -f .mfiles-%{name}-clientutil
-%doc conf/cqlshrc.sample
 %license LICENSE.txt NOTICE.txt
-%attr(755, root, root) %{_bindir}/cqlsh
-%{python2_sitearch}/cqlshlib
-%{python2_sitearch}/%{name}_pylib-0.0.0-py%{python2_version}.egg-info
 %attr(755, root, root) %{_bindir}/nodetool
 %attr(755, root, root) %{_bindir}/sstableloader
 %attr(755, root, root) %{_bindir}/sstablescrub
@@ -415,6 +428,13 @@ exit 0
 %attr(755, root, root) %{_bindir}/sstablerepairedset
 %attr(755, root, root) %{_bindir}/sstablesplit
 
+%files python2-cqlshlib 
+%doc conf/cqlshrc.sample
+%license LICENSE.txt NOTICE.txt
+%attr(755, root, root) %{_bindir}/cqlsh
+%{python2_sitearch}/cqlshlib
+%{python2_sitearch}/%{name}_pylib-0.0.0-py%{python2_version}.egg-info
+
 %files stress  
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/%{name}-stress
@@ -426,7 +446,7 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 
 %changelog
-* Thu Sep 08 2016 Tomas Repik <trepik@redhat.com> - 3.5-1
+* Mon Oct 03 2016 Tomas Repik <trepik@redhat.com> - 3.5-1
 - initial package
 
 
