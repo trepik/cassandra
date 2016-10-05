@@ -88,27 +88,6 @@ BuildRequires:  mvn(org.apache.ant:ant-junit)
 BuildRequires:  mvn(org.jboss.byteman:byteman)
 BuildRequires:  mvn(org.openjdk.jmh:jmh-core)
 
-# leftovers
-#BuildRequires:  mvn(org.apache.hadoop:hadoop-minicluster)
-#BuildRequires:  mvn(junit:junit)
-#BuildRequires:	 hadoop-common
-#BuildRequires:	 jsr-305
-#BuildRequires:  hadoop-hdfs
-#BuildRequires:  hadoop-client
-#BuildRequires:  hadoop-common-native
-#BuildRequires:  hadoop-devel
-#BuildRequires:  hadoop-hdfs-fuse
-#BuildRequires:  hadoop-httpfs
-#BuildRequires:  hadoop-maven-plugin
-#BuildRequires:  hadoop-tests
-#BuildRequires:  hadoop-yarn
-#BuildRequires:  hadoop-yarn-security
-#BuildRequires:  mvn(org.apache.hadoop:hadoop-minicluster)
-#BuildRequires:  mvn(org.slf4j:jcl-over-slf4j)
-#BuildRequires:  mvn(com.codahale.metrics:metrics-core)
-#BuildRequires:  mvn(org.slf4j:log4j-over-slf4j)
-#BuildRequires:  mvn(io.netty:netty-all)
-
 %description
 Cassandra is a partitioned row store. Rows are organized into tables with
 a required primary key. Partitioning means that Cassandra can distribute your
@@ -180,9 +159,6 @@ rm -r %{name}-%{name}-%{version}
 find -name "*.class" -print -delete
 find -name "*.jar" -print -delete
 find -name "*.zip" -print -delete
-#./lib/futures-2.1.6-py2.py3-none-any.zip
-#./lib/six-1.7.3-py2.py3-none-any.zip
-#./lib/cassandra-driver-internal-only-2.6.0c2.post.zip
 find -name "*.so" -print -delete
 find -name "*.dll" -print -delete
 find -name "*.sl" -print -delete
@@ -265,12 +241,6 @@ ln -sf $(build-classpath jmh/jmh-core) lib/jmh-core-1.1.1.jar
 # binaries dependencies
 ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 
-# leftovers
-#ln -sf $(build-classpath disruptor) lib/disruptor-3.0.1.jar
-#ln -sf $(build-classpath slf4j/jcl-over-slf4j) lib/jcl-over-slf4j-1.7.7.jar
-# org.apache.hadoop:hadoop-core,hadoop-minicluster:1.0.3 org.apache.hadoop.conf.Configuration
-#rm -r src/java/org/apache/cassandra/hadoop
-
 # build patch
 %patch0 -p1
 # airline patch
@@ -335,13 +305,9 @@ install -p -D -m 755 bin/%{name} %{buildroot}%{_bindir}/%{name}
 install -p -D -m 755 bin/%{name}.in.sh %{buildroot}%{_bindir}/%{name}.in.sh
 install -p -D -m 755 conf/%{name}-env.sh %{buildroot}%{_sysconfdir}/%{name}-env.sh
 install -p -D -m 644 conf/%{name}.yaml %{buildroot}%{_sysconfdir}/%{name}.yaml
-#cp -p conf/%%{name}-rackdc.properties %%{buildroot}%%{_sysconfdir}/%%{name}-rackdc.properties
-#cp -p conf/%%{name}-topology.properties %%{buildroot}%%{_sysconfdir}/%%{name}-topology.properties
-#cp -p conf/commitlog_archiving.properties %%{buildroot}%%{_sysconfdir}/commitlog_archiving.properties
 install -p -D -m 644 conf/jvm.options %{buildroot}%{_sysconfdir}/jvm.options
 install -p -D -m 644 conf/logback-tools.xml %{buildroot}%{_sysconfdir}/logback-tools.xml
 install -p -D -m 644 conf/logback.xml %{buildroot}%{_sysconfdir}/logback.xml
-#cp -p conf/metrics-reporter-config-sample.yaml %%{buildroot}%%{_sysconfdir}/metrics-reporter-config-sample.yaml
 install -p -D -m 755 bin/cqlsh.py %{buildroot}%{_bindir}/cqlsh
 install -p -D -m 755 bin/nodetool %{buildroot}%{_bindir}/nodetool
 install -p -D -m 755 bin/sstableloader %{buildroot}%{_bindir}/sstableloader
@@ -388,21 +354,15 @@ exit 0
 %doc README.asc CHANGES.txt NEWS.txt
 %license LICENSE.txt NOTICE.txt
 # just for testing
-#%dir %%attr(755, trepik, root) %%{_sharedstatedir}/%%{name}
-#%dir %%attr(750, trepik, root) %%{_localstatedir}/log/%%{name}
 %dir %attr(755, %{name}, root) %{_sharedstatedir}/%{name}
 %dir %attr(750, %{name}, root) %{_localstatedir}/log/%{name}
 %attr(755, root, root) %{_bindir}/%{name}
 %attr(755, root, root) %{_bindir}/%{name}.in.sh
 %config(noreplace) %{_sysconfdir}/%{name}-env.sh
 %config(noreplace) %{_sysconfdir}/%{name}.yaml
-#%config(noreplace) %%{_sysconfdir}/%%{name}-rackdc.properties
-#%config(noreplace) %%{_sysconfdir}/%%{name}-topology.properties
-#%config(noreplace) %%{_sysconfdir}/commitlog_archiving.properties
 %config(noreplace) %{_sysconfdir}/jvm.options
 %config(noreplace) %{_sysconfdir}/logback-tools.xml
 %config(noreplace) %{_sysconfdir}/logback.xml
-#%config(noreplace) %%{_sysconfdir}/metrics-reporter-config-sample.yaml
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_unitdir}/%{name}d.service
 
