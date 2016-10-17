@@ -3,8 +3,8 @@
 %global allocated_uid 193
 
 Name:           cassandra
-Version:        3.5
-Release:        1%{?dist}
+Version:        3.9
+Release:        0%{?dist}
 Summary:        OpenSource database Apache Cassandra
 
 License:        ASL 2.0
@@ -34,6 +34,8 @@ Patch3:		%{name}-hppc.patch
 Patch4:		%{name}-thrift.patch
 # add two more parameters for SubstituteLogger constructor in slf4j
 Patch5:		%{name}-slf4j.patch
+# temporary remove caffeine
+Patch6:		%{name}-caffeine.patch
 
 Requires(pre):  shadow-utils
 
@@ -82,6 +84,10 @@ BuildRequires:  mvn(org.slf4j:log4j-over-slf4j)
 BuildRequires:  mvn(org.slf4j:jcl-over-slf4j)
 BuildRequires:  mvn(org.codehaus.jackson:jackson-core-asl)
 BuildRequires:  mvn(org.eclipse.jdt.core.compiler:ecj)
+# since 3.9
+BuildRequires:  mvn(io.dropwizard.metrics:metrics-jvm)
+# not available yet
+#BuildRequires:  mvn(com.github.ben-manes.caffeine:caffeine) >= 2.2.6
 
 # test dependencies
 BuildRequires:  mvn(org.apache.ant:ant-junit)
@@ -186,20 +192,20 @@ ln -sf $(build-classpath slf4j/api) lib/slf4j-api-1.7.7.jar
 ln -sf $(build-classpath guava) lib/guava-18.0.jar
 ln -sf $(build-classpath jamm) lib/jamm-0.3.0.jar
 ln -sf $(build-classpath stream-lib) lib/stream-2.5.2.jar
-ln -sf $(build-classpath metrics/metrics-core) lib/metrics-core-3.0.1.jar
-ln -sf $(build-classpath metrics/metrics-logback) lib/metrics-logback-3.0.1.jar
+ln -sf $(build-classpath metrics/metrics-core) lib/metrics-core-3.1.0.jar
+ln -sf $(build-classpath metrics/metrics-jvm) lib/metrics-jvm-3.1.0.jar
 ln -sf $(build-classpath json_simple) lib/json-simple-1.1.jar
 ln -sf $(build-classpath antlr3-runtime) lib/antlr-runtime-3.5.2.jar
 ln -sf $(build-classpath compile-command-annotations) lib/compile-command-annotations-1.2.0.jar
 # https://bugzilla.redhat.com/show_bug.cgi?id=1308556
 ln -sf $(build-classpath high-scale-lib/high-scale-lib) lib/high-scale-lib-1.0.6.jar
-ln -sf $(build-classpath cassandra-java-driver/cassandra-driver-core) lib/cassandra-driver-core-3.0.0.jar
-ln -sf $(build-classpath netty/netty-all) lib/netty-all-4.0.23.Final.jar
+ln -sf $(build-classpath cassandra-java-driver/cassandra-driver-core) lib/cassandra-driver-core-3.0.1.jar
+ln -sf $(build-classpath netty/netty-all) lib/netty-all-4.0.39.Final.jar
 ln -sf $(build-classpath lz4) lib/lz4-1.3.0.jar
 ln -sf $(build-classpath snappy-java) lib/snappy-java-1.1.1.7.jar
 ln -sf $(build-classpath jBCrypt) lib/jbcrypt-0.3m.jar
 ln -sf $(build-classpath concurrentlinkedhashmap-lru) lib/concurrentlinkedhashmap-lru-1.4.jar
-ln -sf $(build-classpath ohc/ohc-core) lib/ohc-core-0.4.2.jar
+ln -sf $(build-classpath ohc/ohc-core) lib/ohc-core-0.4.3.jar
 # temporarly removed as it is optional
 #ln -sf $(build-classpath hadoop/hadoop-common) lib/hadoop-common-2.4.1.jar
 ln -sf $(build-classpath snakeyaml) lib/snakeyaml-1.11.jar
@@ -219,7 +225,7 @@ ln -sf $(build-classpath metrics-reporter-config/reporter-config) lib/reporter-c
 ln -sf $(build-classpath metrics-reporter-config/reporter-config-base) lib/reporter-config-base-3.0.0.jar
 ln -sf $(build-classpath joda-time) lib/joda-time-2.4.jar
 ln -sf $(build-classpath compress-lzf) lib/compress-lzf-0.8.4.jar
-ln -sf $(build-classpath disruptor-thrift-server) lib/thrift-server-0.3.8.jar
+ln -sf $(build-classpath disruptor-thrift-server) lib/thrift-server-0.3.7.jar
 ln -sf $(build-classpath commons-cli) lib/commons-cli-1.1.jar
 ln -sf $(build-classpath airline) lib/airline-0.6.jar
 ln -sf $(build-classpath jna) lib/jna-4.0.0.jar
@@ -258,6 +264,8 @@ ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 # slf4j patch
 %patch5 -p1
 %endif
+# caffeine removal patch
+#%patch6 -p1
 
 # copy pom files
 mkdir build
@@ -273,6 +281,9 @@ cp -p %{SOURCE7} build/%{name}-%{version}-parent.pom
 %mvn_package "org.apache.%{name}:%{name}-parent:pom:3.5" %{name}-parent
 %mvn_package ":%{name}-thrift"  %{name}-thrift
 %mvn_package ":%{name}-clientutil" %{name}-clientutil
+
+# Temporary remove caffeine
+#rm src/java/org/apache/cassandra/cache/ChunkCache.java
 
 %build
 ant jar javadoc -Drelease=true
