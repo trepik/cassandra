@@ -122,6 +122,7 @@ Requires:       %{name} = %{version}-%{release}
 %description clientutil
 Utilities usable by client for %{name}
 
+# source codes of cqlshlib are not python3 compatible, therefore using python2
 %package        python2-cqlshlib
 Summary:        Commandline interface for %{name}
 BuildRequires:  python2-devel
