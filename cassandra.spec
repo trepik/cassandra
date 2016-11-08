@@ -5,109 +5,95 @@
 %global allocated_gid 156
 %global allocated_uid 156
 
-Name:           %{?scl_prefix}cassandra
-Version:        3.5
-Release:        0%{?dist}
-Summary:        OpenSource database Apache Cassandra
-
-License:        ASL 2.0
-URL:            http://%{pkg_name}.apache.org/
-Source0:        https://github.com/apache/%{pkg_name}/archive/%{pkg_name}-%{version}.tar.gz
+Name:		%{?scl_prefix}cassandra
+Version:	3.9
+Release:	0%{?dist}
+Summary:	OpenSource database Apache Cassandra
+License:	ASL 2.0
+URL:		http://cassandra.apache.org/
+Source0:	https://github.com/apache/%{pkg_name}/archive/%{pkg_name}-%{version}.tar.gz
 Source1:	%{pkg_name}.logrotate
 Source2:	%{pkg_name}d.service
 Source3:	%{pkg_name}-tmpfile
 
-#fix encoding error
-Patch0:		%{pkg_name}-build.patch
-#airline0.7 imports fix
-Patch1:		%{pkg_name}-airline0.7.patch
+# fix encoding error
+Patch0:		%{pkg_name}-%{version}-build.patch
+# airline0.7 imports fix in cassandra source, which is dependent on 0.6 version
+Patch1:		%{pkg_name}-%{version}-airline0.7.patch
 # modify installed scripts
-Patch2:		%{pkg_name}-scripts.patch
+Patch2:		%{pkg_name}-%{version}-scripts.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1340876
 # remove "Open" infix from all hppc classes
-Patch3:		%{pkg_name}-hppc.patch
+Patch3:		%{pkg_name}-%{version}-hppc.patch
 # changes autoclosable issue with TTransport in thrift
-Patch4:		%{pkg_name}-thrift.patch
+Patch4:		%{pkg_name}-%{version}-thrift.patch
 # add two more parameters for SubstituteLogger constructor in slf4j
-Patch5:		%{pkg_name}-slf4j.patch
+Patch5:		%{pkg_name}-%{version}-slf4j.patch
 
-#BuildArch:      noarch
 %{?scl:Requires: %scl_runtime}
 Requires:	jpackage-utils
-Requires(pre):  shadow-utils
+Requires(pre):	shadow-utils
 
-BuildRequires:  systemd
-BuildRequires:  python2-devel
-BuildRequires:  Cython
-BuildRequires:  maven-local
-BuildRequires:	ant
-BuildRequires:  %{?scl_java_prefix}antlr-tool
-BuildRequires:  mvn(de.jflex:jflex)
-BuildRequires:  mvn(org.apache.thrift:libthrift)
-BuildRequires:  mvn(com.github.jbellis:jamm)
-BuildRequires:  %{?scl_prefix}stream-lib
-# not supporting f23 any more
-BuildRequires:  mvn(io.dropwizard.metrics:metrics-core)
-BuildRequires:  mvn(com.googlecode.json-simple:json-simple)
-BuildRequires:  mvn(net.ju-n.compile-command-annotations:compile-command-annotations)
+BuildRequires:	systemd
+BuildRequires:	python2-devel
+BuildRequires:	Cython
+BuildRequires:	%{?scl_prefix_maven}maven-local
+BuildRequires:	%{?scl_prefix_java_common}ant
+# in rh-maven33: 1.4.3, needed: 1.6.0
+BuildRequires:	%{?scl_prefix_maven}jflex
+# in cassandra39: 0.9.1, needed: 0.9.2
+BuildRequires:	%{?scl_prefix}libthrift-java
+BuildRequires:	%{?scl_prefix}jamm
+BuildRequires:	%{?scl_prefix}stream-lib
+BuildRequires:	%{?scl_prefix}metrics
+BuildRequires:	%{?scl_prefix}json_simple
+BuildRequires:	%{?scl_prefix}compile-command-annotations
 # using high-scale-lib from stephenc, no Cassandra original
-#BuildRequires:  mvn(com.boundary:high-scale-lib)
-BuildRequires:  mvn(com.github.stephenc.high-scale-lib:high-scale-lib)
+#BuildRequires:	 mvn(com.boundary:high-scale-lib)
+BuildRequires:	%{?scl_prefix}high-scale-lib
 # temporarly removed as it is optional
-# BuildRequires:  mvn(com.datastax.cassandra:cassandra-driver-core)
-BuildRequires:  mvn(net.jpountz.lz4:lz4)
-BuildRequires:  %{?scl_prefix}snappy-java
-BuildRequires:  %{?scl_prefix}jBCrypt
-BuildRequires:  mvn(com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru)
-BuildRequires:  mvn(org.caffinitas.ohc:ohc-core)
+#BuildRequires:	mvn(com.datastax.cassandra:cassandra-driver-core)
+# TODO
+#BuildRequires:	%{?scl_prefix}lz4-java
+#BuildRequires:	%{?scl_prefix}snappy-java
+BuildRequires:	%{?scl_prefix}jBCrypt
+# probably don't need any more
+BuildRequires:	%{?scl_prefix}concurrentlinkedhashmap-lru
+# TODO
+#BuildRequires:	%{?scl_prefix}ohc
+#BuildRequires:	%{?scl_prefix}ohc-core-j8
 # using hadoop-common instead of hadoop-core, no Cassandra original
-#BuildRequires:  mvn(org.apache.hadoop:hadoop-core)
+#BuildRequires:	mvn(org.apache.hadoop:hadoop-core)
 # temporarly removed as it is optional
-#BuildRequires:  hadoop-common
-#BuildRequires:  hadoop-mapreduce
-BuildRequires:  %{?scl_prefix}concurrent-trees
-BuildRequires:  mvn(com.carrotsearch:hppc)
+#BuildRequires:	hadoop-common
+#BuildRequires:	hadoop-mapreduce
+BuildRequires:	%{?scl_prefix}concurrent-trees
+# TODO
+BuildRequires:	%{?scl_prefix}hppc
 # using repackaging of the snowball stemmer so that it's available on Maven Central 
-#BuildRequires:  mvn(com.github.rholder:snowball-stemmer)
-BuildRequires:  mvn(org.tartarus:snowball)
-BuildRequires:  mvn(net.mintern:primitive)
-BuildRequires:  mvn(ch.qos.logback:logback-core)
-BuildRequires:  mvn(ch.qos.logback:logback-classic)
-BuildRequires:  mvn(com.addthis.metrics:reporter-config3)
-BuildRequires:  mvn(com.ning:compress-lzf)
-BuildRequires:  mvn(com.thinkaurelius.thrift:thrift-server)
-BuildRequires:  %{?scl_prefix}airline
-BuildRequires:  mvn(org.fusesource:sigar)
-BuildRequires:  mvn(org.slf4j:log4j-over-slf4j)
-BuildRequires:  mvn(org.slf4j:jcl-over-slf4j)
+#BuildRequires:	mvn(com.github.rholder:snowball-stemmer)
+BuildRequires:	%{?scl_prefix}snowball-java
+# not needed any more I guess
+#BuildRequires:	mvn(net.mintern:primitive)
+BuildRequires:	%{?scl_prefix}logback
+BuildRequires:	%{?scl_prefix}metrics-reporter-config
+BuildRequires:	%{?scl_prefix}compress-lzf
+BuildRequires:	%{?scl_prefix}disruptor-thrift-server
+BuildRequires:	%{?scl_prefix}airline
+# TODO
+BuildRequires:	%{?scl_prefix}sigar
+# in rh-java-common: 1.7.4, needed: 1.7.7
+BuildRequires:	%{?scl_prefix_java_common}log4j-over-slf4j
+# in rh-java-common: 1.7.4, needed: 1.7.7
+BuildRequires:	%{?scl_prefix_java_common}jcl-over-slf4j
 # test dependencies
-BuildRequires:  mvn(org.apache.ant:ant-junit)
-BuildRequires:  mvn(org.jboss.byteman:byteman)
-BuildRequires:  %{?scl_prefix}jmh
+# in rh-java-common: 1.9.2, needed: 1.9.4
+BuildRequires:	%{?scl_prefix_java_common}ant-junit
+# TODO v 3.0.3
+#BuildRequires:	mvn(org.jboss.byteman:byteman)
+BuildRequires:	%{?scl_prefix}jmh
 # scl dependencies
-%{?scl:Requires: %scl_require rh-maven33}
-
-# leftovers 
-#BuildRequires:  mvn(org.apache.hadoop:hadoop-minicluster)
-#BuildRequires:  mvn(junit:junit)
-#BuildRequires:	 hadoop-common
-#BuildRequires:	 jsr-305
-#BuildRequires:  hadoop-hdfs
-#BuildRequires:  hadoop-client
-#BuildRequires:  hadoop-common-native
-#BuildRequires:  hadoop-devel
-#BuildRequires:  hadoop-hdfs-fuse
-#BuildRequires:  hadoop-httpfs
-#BuildRequires:  hadoop-maven-plugin
-#BuildRequires:  hadoop-tests
-#BuildRequires:  hadoop-yarn
-#BuildRequires:  hadoop-yarn-security
-#BuildRequires:  mvn(org.apache.hadoop:hadoop-minicluster)
-#BuildRequires:  mvn(org.slf4j:jcl-over-slf4j)
-#BuildRequires:  mvn(com.codahale.metrics:metrics-core)
-#BuildRequires:  mvn(org.slf4j:log4j-over-slf4j)
-#BuildRequires:  mvn(io.netty:netty-all)
-
+%{?scl:Requires:	%scl_require rh-maven33}
 
 %description
 Cassandra is a partitioned row store. Rows are organized into tables with
@@ -120,44 +106,43 @@ Database Pure Java Driver. It was developed specifically as a lightweight
 JDBC connector for use with MySQL and MariaDB database servers.
 
 %package parent
-Summary:        Parent POM for %{pkg_name}
+Summary:	Parent POM for %{pkg_name}
 
 %description parent
 Parent POM for %{pkg_name}.
 
-%package        thrift
-Summary:        Thrift for %{pkg_name}
-Requires:       %{pkg_name} = %{version}-%{release}
+%package thrift
+Summary:	Thrift for %{pkg_name}
+Requires:	%{pkg_name} = %{version}-%{release}
 
 %description thrift
 Allows portable (across programming languages) access to the database. Thrift
 accomplishes this by generated source code for the programming language in
 question based on a Thrift IDL file describing the service.
 
-%package        clientutil
-Summary:        Client utilities for %{pkg_name}
-Requires:       %{pkg_name} = %{version}-%{release}
+%package clientutil
+Summary:	Client utilities for %{pkg_name}
+Requires:	%{pkg_name} = %{version}-%{release}
 Requires:	python-cassandra-driver
 
 %description clientutil
 Utilities usable by client for %{pkg_name}
 
-%package        stress
-Summary:        Stress testing utility for %{pkg_name}
-Requires:       %{pkg_name} = %{version}-%{release}
+%package stress
+Summary:	Stress testing utility for %{pkg_name}
+Requires:	%{pkg_name} = %{version}-%{release}
 
 %description stress
 The cassandra-stress tool is a Java-based stress testing utility
 for benchmarking and load testing a Cassandra cluster.
 
-%package        javadoc
-Summary:        Javadoc for %{pkg_name}
+%package javadoc
+Summary:	Javadoc for %{pkg_name}
 
 %description javadoc
 This package contains the API documentation for %{pkg_name}.
 
 %prep
-%{?scl_enable}
 %setup -qcn %{pkg_name}-%{version}
 cp -pr %{pkg_name}-%{pkg_name}-%{version}/* .
 rm -r %{pkg_name}-%{pkg_name}-%{version}
@@ -246,13 +231,6 @@ ln -sf $(build-classpath jmh/jmh-core) lib/jmh-core-1.1.1.jar
 # binaries dependencies
 ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 
-# leftovers
-#ln -sf $(build-classpath disruptor) lib/disruptor-3.0.1.jar
-#ln -sf $(build-classpath slf4j/jcl-over-slf4j) lib/jcl-over-slf4j-1.7.7.jar
-
-# org.apache.hadoop:hadoop-core,hadoop-minicluster:1.0.3 org.apache.hadoop.conf.Configuration
-#rm -r src/java/org/apache/cassandra/hadoop
-
 # build patch
 %patch0 -p1
 # airline patch
@@ -266,84 +244,79 @@ ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 # slf4j patch
 %patch5 -p1
 
-%mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:3.5" %{pkg_name}-parent
+%{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
+%mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" %{pkg_name}-parent
 %mvn_package ":%{pkg_name}-thrift"  %{pkg_name}-thrift
 %mvn_package ":%{pkg_name}-clientutil" %{pkg_name}-clientutil
-%{?scl_disable}
+%{?scl:EOF}
 
 %build
-%{?scl_enable}
+%{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 ant jar javadoc -Drelease=true 
+%{?scl:EOF}
 
 # Build the cqlshlib Python module
 pushd pylib
 %py2_build
 popd
-%{?scl_disable}
 
 %install
-%{?scl_enable}
+%{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 %mvn_artifact build/%{pkg_name}-%{version}-parent.pom
 %mvn_artifact build/%{pkg_name}-%{version}.pom  build/%{pkg_name}-%{version}.jar
 %mvn_artifact build/%{pkg_name}-thrift-%{version}.pom  build/%{pkg_name}-thrift-%{version}.jar
 %mvn_artifact build/%{pkg_name}-clientutil-%{version}.pom  build/%{pkg_name}-clientutil-%{version}.jar
 
 %mvn_install -J build/javadoc/
+%{?scl:EOF}
 
 # Install the cqlshlib Python module
 pushd pylib
 %py2_install
 popd
-%{?scl_disable}
 
 # create data dir
-mkdir -p %{buildroot}%{?scl:%{_root_sharedstatedir}}%{!?scl:%{_sharedstatedir}}/%{pkg_name}
+mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 
 # logs directory plus files
-mkdir -p %{buildroot}%{?scl:%{_root_localstatedir}}%{!?scl:%{_localstatedir}}/log/%{pkg_name}
-install -p -D -m 644 "%{SOURCE1}"  %{buildroot}%{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/logrotate.d/%{pkg_name}
-
-#%jpackage_script org.apache.cassandra.service.CassandraDaemon "" "" %%{classpath} cassandra true
-install -p -D -m 755 bin/%{pkg_name} %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}
-install -p -D -m 755 bin/%{pkg_name}.in.sh %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}.in.sh
-install -p -D -m 755 conf/%{pkg_name}-env.sh %{buildroot}%{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/%{pkg_name}-env.sh
-install -p -D -m 644 conf/%{pkg_name}.yaml %{buildroot}%{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/%{pkg_name}.yaml
-#cp -p conf/%%{pkg_name}-rackdc.properties %%{buildroot}%%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/%%{pkg_name}-rackdc.properties
-#cp -p conf/%%{pkg_name}-topology.properties %%{buildroot}%%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/%%{pkg_name}-topology.properties
-#cp -p conf/commitlog_archiving.properties %%{buildroot}%%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/commitlog_archiving.properties
-install -p -D -m 644 conf/jvm.options %{buildroot}%{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/jvm.options
-install -p -D -m 644 conf/logback-tools.xml %{buildroot}%{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/logback-tools.xml
-install -p -D -m 644 conf/logback.xml %{buildroot}%{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/logback.xml
-#cp -p conf/metrics-reporter-config-sample.yaml %%{buildroot}%%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/metrics-reporter-config-sample.yaml
-install -p -D -m 755 bin/cqlsh.py %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/cqlsh
-install -p -D -m 755 bin/nodetool %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/nodetool
-install -p -D -m 755 bin/sstableloader %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableloader
-install -p -D -m 755 bin/sstablescrub %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablescrub
-install -p -D -m 755 bin/sstableupgrade %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableupgrade
-install -p -D -m 755 bin/sstableutil %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableutil
-install -p -D -m 755 bin/sstableverify %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableverify
-install -p -D -m 755 tools/bin/sstabledump %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstabledump
-install -p -D -m 755 tools/bin/sstableexpiredblockers %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableexpiredblockers
-install -p -D -m 755 tools/bin/sstablelevelreset %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablelevelreset
-install -p -D -m 755 tools/bin/sstablemetadata %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablemetadata
-install -p -D -m 755 tools/bin/sstableofflinerelevel %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableofflinerelevel
-install -p -D -m 755 tools/bin/sstablerepairedset %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablerepairedset
-install -p -D -m 755 tools/bin/sstablesplit %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablesplit
-install -p -D -m 755 build/tools/lib/%{pkg_name}-stress.jar %{buildroot}%{?scl:%{_root_javadir}}%{!?scl:%{_javadir}}/%{pkg_name}-stress.jar
-install -p -D -m 755 tools/bin/%{pkg_name}-stress %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}-stress
-install -p -D -m 755 tools/bin/%{pkg_name}-stressd %{buildroot}%{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}-stressd
+mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
+install -p -D -m 644 "%{SOURCE1}"  %{buildroot}%{_sysconfdir}/logrotate.d/%{pkg_name}
+install -p -D -m 755 bin/%{pkg_name} %{buildroot}%{_bindir}/%{pkg_name}
+install -p -D -m 755 bin/%{pkg_name}.in.sh %{buildroot}%{_bindir}/%{pkg_name}.in.sh
+install -p -D -m 755 conf/%{pkg_name}-env.sh %{buildroot}%{_sysconfdir}/%{pkg_name}-env.sh
+install -p -D -m 644 conf/%{pkg_name}.yaml %{buildroot}%{_sysconfdir}/%{pkg_name}.yaml
+install -p -D -m 644 conf/jvm.options %{buildroot}%{_sysconfdir}/jvm.options
+install -p -D -m 644 conf/logback-tools.xml %{buildroot}%{_sysconfdir}/logback-tools.xml
+install -p -D -m 644 conf/logback.xml %{buildroot}%{_sysconfdir}/logback.xml
+install -p -D -m 755 bin/cqlsh.py %{buildroot}%{_bindir}/cqlsh
+install -p -D -m 755 bin/nodetool %{buildroot}%{_bindir}/nodetool
+install -p -D -m 755 bin/sstableloader %{buildroot}%{_bindir}/sstableloader
+install -p -D -m 755 bin/sstablescrub %{buildroot}%{_bindir}/sstablescrub
+install -p -D -m 755 bin/sstableupgrade %{buildroot}%{_bindir}/sstableupgrade
+install -p -D -m 755 bin/sstableutil %{buildroot}%{_bindir}/sstableutil
+install -p -D -m 755 bin/sstableverify %{buildroot}%{_bindir}/sstableverify
+install -p -D -m 755 tools/bin/sstabledump %{buildroot}%{_bindir}/sstabledump
+install -p -D -m 755 tools/bin/sstableexpiredblockers %{buildroot}%{_bindir}/sstableexpiredblockers
+install -p -D -m 755 tools/bin/sstablelevelreset %{buildroot}%{_bindir}/sstablelevelreset
+install -p -D -m 755 tools/bin/sstablemetadata %{buildroot}%{_bindir}/sstablemetadata
+install -p -D -m 755 tools/bin/sstableofflinerelevel %{buildroot}%{_bindir}/sstableofflinerelevel
+install -p -D -m 755 tools/bin/sstablerepairedset %{buildroot}%{_bindir}/sstablerepairedset
+install -p -D -m 755 tools/bin/sstablesplit %{buildroot}%{_bindir}/sstablesplit
+install -p -D -m 755 build/tools/lib/%{pkg_name}-stress.jar %{buildroot}%{_javadir}/%{pkg_name}-stress.jar
+install -p -D -m 755 tools/bin/%{pkg_name}-stress %{buildroot}%{_bindir}/%{pkg_name}-stress
+install -p -D -m 755 tools/bin/%{pkg_name}-stressd %{buildroot}%{_bindir}/%{pkg_name}-stressd
 
 # install cassandrad.service
-install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{?scl:%{_root_unitdir}}%{!?scl:%{_unitdir}}/%{pkg_name}d.service
+install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{_unitdir}/%{pkg_name}d.service
 
 %pre
 getent group %{pkg_name} >/dev/null || groupadd -f -g %{allocated_gid} -r %{pkg_name}
 if ! getent passwd %{pkg_name} >/dev/null ; then
   if ! getrnt passwd %{allocated_uid} >/dev/null ; then
-    useradd -r -u %{allocated_uid} -g %{pkg_name} -d %{?scl:%{_root_sharedstatedir}}%{!?scl:%{_sharedstatedir}}/%{pkg_name} \
+    useradd -r -u %{allocated_uid} -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name} \
       -s /sbin/nologin -c "Cassandra Database Server" %{pkg_name}
   else
-    useradd -r -g %{pkg_name} -d %{?scl:%{_root_sharedstatedir}}%{!?scl:%{_sharedstatedir}}/%{pkg_name} -s /sbin/nologin \
+    useradd -r -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name} -s /sbin/nologin \
       -c "Cassandra Database Server" %{pkg_name}
   fi
 fi
@@ -352,24 +325,17 @@ exit 0
 %files -f .mfiles
 %doc README.asc CHANGES.txt NEWS.txt
 %license LICENSE.txt NOTICE.txt
-# just for testing
-#%dir %%attr(755, %%{pkg_name}, root) %%{?scl:%%{_root_sharedstatedir}}%%{!?scl:%%{_sharedstatedir}}/%%{pkg_name}
-#%dir %%attr(750, %%{pkg_name}, root) %%{?scl:%%{_root_localstatedir}}%%{!?scl:%%{_localstatedir}}/log/%%{pkg_name}
-%dir %attr(755, trepik, root) %{?scl:%{_root_sharedstatedir}}%{!?scl:%{_sharedstatedir}}/%{pkg_name}
-%dir %attr(750, trepik, root) %{?scl:%{_root_localstatedir}}%{!?scl:%{_localstatedir}}/log/%{pkg_name}
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}.in.sh
-%config(noreplace) %{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/%{pkg_name}-env.sh
-%config(noreplace) %{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/%{pkg_name}.yaml
-#%config(noreplace) %%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/%%{pkg_name}-rackdc.properties
-#%config(noreplace) %%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/%%{pkg_name}-topology.properties
-#%config(noreplace) %%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/commitlog_archiving.properties
-%config(noreplace) %{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/jvm.options
-%config(noreplace) %{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/logback-tools.xml
-%config(noreplace) %{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/logback.xml
-#%config(noreplace) %%{?scl:%%{_root_sysconfdir}}%%{!?scl:%%{_sysconfdir}}/metrics-reporter-config-sample.yaml
-%config(noreplace) %{?scl:%{_root_sysconfdir}}%{!?scl:%{_sysconfdir}}/logrotate.d/%{pkg_name}
-%{?scl:%{_root_unitdir}}%{!?scl:%{_unitdir}}/%{pkg_name}d.service
+%dir %attr(755, %{pkg_name}, root) %{_sharedstatedir}/%{pkg_name}
+%dir %attr(750, %{pkg_name}, root) %{_localstatedir}/log/%{pkg_name}
+%attr(755, root, root) %{_bindir}/%{pkg_name}
+%attr(755, root, root) %{_bindir}/%{pkg_name}.in.sh
+%config(noreplace) %{_sysconfdir}/%{pkg_name}-env.sh
+%config(noreplace) %{_sysconfdir}/%{pkg_name}.yaml
+%config(noreplace) %{_sysconfdir}/jvm.options
+%config(noreplace) %{_sysconfdir}/logback-tools.xml
+%config(noreplace) %{_sysconfdir}/logback.xml
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
+%{_unitdir}/%{pkg_name}d.service
 
 %files parent -f .mfiles-%{pkg_name}-parent
 %license LICENSE.txt NOTICE.txt
@@ -380,29 +346,29 @@ exit 0
 %files clientutil -f .mfiles-%{pkg_name}-clientutil
 %doc conf/cqlshrc.sample
 %license LICENSE.txt NOTICE.txt
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/cqlsh
+%attr(755, root, root) %{_bindir}/cqlsh
 %{python2_sitearch}/cqlshlib
 %{python2_sitearch}/%{pkg_name}_pylib-0.0.0-py%{python2_version}.egg-info
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/nodetool
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableloader
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablescrub
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableupgrade
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableutil
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableverify
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstabledump
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableexpiredblockers
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablelevelreset
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablemetadata
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstableofflinerelevel
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablerepairedset
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/sstablesplit
+%attr(755, root, root) %{_bindir}/nodetool
+%attr(755, root, root) %{_bindir}/sstableloader
+%attr(755, root, root) %{_bindir}/sstablescrub
+%attr(755, root, root) %{_bindir}/sstableupgrade
+%attr(755, root, root) %{_bindir}/sstableutil
+%attr(755, root, root) %{_bindir}/sstableverify
+%attr(755, root, root) %{_bindir}/sstabledump
+%attr(755, root, root) %{_bindir}/sstableexpiredblockers
+%attr(755, root, root) %{_bindir}/sstablelevelreset
+%attr(755, root, root) %{_bindir}/sstablemetadata
+%attr(755, root, root) %{_bindir}/sstableofflinerelevel
+%attr(755, root, root) %{_bindir}/sstablerepairedset
+%attr(755, root, root) %{_bindir}/sstablesplit
 
 %files stress  
 %license LICENSE.txt NOTICE.txt
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}-stress
-%attr(755, root, root) %{?scl:%{_root_javadir}}%{!?scl:%{_javadir}}/%{pkg_name}-stress.jar
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}-stressd
-%attr(755, root, root) %{?scl:%{_root_bindir}}%{!?scl:%{_bindir}}/%{pkg_name}.in.sh
+%attr(755, root, root) %{_bindir}/%{pkg_name}-stress
+%attr(755, root, root) %{_javadir}/%{pkg_name}-stress.jar
+%attr(755, root, root) %{_bindir}/%{pkg_name}-stressd
+%attr(755, root, root) %{_bindir}/%{pkg_name}.in.sh
 
 %files javadoc -f .mfiles-javadoc
 %license LICENSE.txt

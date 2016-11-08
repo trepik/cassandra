@@ -1,0 +1,1263 @@
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Assassinate.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Assassinate.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Assassinate.java	2016-10-17 13:11:26.286759742 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Assassinate.java	2016-10-17 10:58:46.171126948 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.net.UnknownHostException;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/BootstrapResume.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/BootstrapResume.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/BootstrapResume.java	2016-10-17 13:11:26.289759772 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/BootstrapResume.java	2016-10-17 10:58:46.171126948 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOError;
+ import java.io.IOException;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CfHistograms.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CfHistograms.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CfHistograms.java	2016-10-17 13:11:26.289759772 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CfHistograms.java	2016-10-17 10:58:46.171126948 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ /**
+  * @deprecated use TableHistograms
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CfStats.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CfStats.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CfStats.java	2016-10-17 13:11:26.289759772 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CfStats.java	2016-10-17 10:58:46.171126948 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ /**
+  * @deprecated use TableStats
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Cleanup.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Cleanup.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Cleanup.java	2016-10-17 13:11:26.289759772 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Cleanup.java	2016-10-17 10:58:46.171126948 +0200
+@@ -17,14 +17,14 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+ import org.apache.cassandra.config.Schema;
+-import io.airlift.command.Option;
++import io.airlift.airline.Option;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ClearSnapshot.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ClearSnapshot.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ClearSnapshot.java	2016-10-17 13:11:26.289759772 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ClearSnapshot.java	2016-10-17 10:58:46.171126948 +0200
+@@ -20,9 +20,9 @@
+ import static com.google.common.collect.Iterables.toArray;
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+ import static org.apache.commons.lang3.StringUtils.join;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.io.IOException;
+ import java.util.ArrayList;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CompactionHistory.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CompactionHistory.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CompactionHistory.java	2016-10-17 13:11:26.290759781 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CompactionHistory.java	2016-10-17 10:58:46.172126957 +0200
+@@ -26,7 +26,7 @@
+ import java.util.Set;
+ import javax.management.openmbean.TabularData;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CompactionStats.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CompactionStats.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/CompactionStats.java	2016-10-17 13:11:26.290759781 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/CompactionStats.java	2016-10-17 10:58:46.172126957 +0200
+@@ -22,8 +22,8 @@
+ import java.util.Map;
+ import java.util.Map.Entry;
+ 
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import org.apache.cassandra.db.compaction.CompactionManagerMBean;
+ import org.apache.cassandra.db.compaction.OperationType;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Compact.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Compact.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Compact.java	2016-10-17 13:11:26.290759781 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Compact.java	2016-10-17 10:58:46.172126957 +0200
+@@ -17,9 +17,9 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Decommission.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Decommission.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Decommission.java	2016-10-17 13:11:26.290759781 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Decommission.java	2016-10-17 10:58:46.172126957 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DescribeCluster.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DescribeCluster.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DescribeCluster.java	2016-10-17 13:11:26.290759781 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DescribeCluster.java	2016-10-17 10:58:46.172126957 +0200
+@@ -18,7 +18,7 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static java.lang.String.format;
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.util.List;
+ import java.util.Map;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DescribeRing.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DescribeRing.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DescribeRing.java	2016-10-17 13:11:26.291759791 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DescribeRing.java	2016-10-17 10:58:46.172126957 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOException;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableAutoCompaction.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableAutoCompaction.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableAutoCompaction.java	2016-10-17 13:11:26.291759791 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableAutoCompaction.java	2016-10-17 10:58:46.172126957 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOException;
+ import java.util.ArrayList;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableBackup.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableBackup.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableBackup.java	2016-10-17 13:11:26.291759791 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableBackup.java	2016-10-17 10:58:46.173126965 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableBinary.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableBinary.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableBinary.java	2016-10-17 13:11:26.291759791 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableBinary.java	2016-10-17 10:58:46.173126965 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableGossip.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableGossip.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableGossip.java	2016-10-17 13:11:26.291759791 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableGossip.java	2016-10-17 10:58:46.173126965 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableHandoff.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableHandoff.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableHandoff.java	2016-10-17 13:11:26.291759791 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableHandoff.java	2016-10-17 10:58:46.173126965 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableHintsForDC.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableHintsForDC.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableHintsForDC.java	2016-10-17 13:11:26.291759791 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableHintsForDC.java	2016-10-17 10:58:46.173126965 +0200
+@@ -20,8 +20,8 @@
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableThrift.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableThrift.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/DisableThrift.java	2016-10-17 13:11:26.292759801 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/DisableThrift.java	2016-10-17 10:58:46.173126965 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Drain.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Drain.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Drain.java	2016-10-17 13:11:26.292759801 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Drain.java	2016-10-17 10:58:46.173126965 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOException;
+ import java.util.concurrent.ExecutionException;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableAutoCompaction.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableAutoCompaction.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableAutoCompaction.java	2016-10-17 13:11:26.292759801 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableAutoCompaction.java	2016-10-17 10:58:46.173126965 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOException;
+ import java.util.ArrayList;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableBackup.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableBackup.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableBackup.java	2016-10-17 13:11:26.292759801 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableBackup.java	2016-10-17 10:58:46.174126974 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableBinary.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableBinary.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableBinary.java	2016-10-17 13:11:26.292759801 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableBinary.java	2016-10-17 10:58:46.174126974 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableGossip.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableGossip.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableGossip.java	2016-10-17 13:11:26.292759801 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableGossip.java	2016-10-17 10:58:46.174126974 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableHandoff.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableHandoff.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableHandoff.java	2016-10-17 13:11:26.293759811 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableHandoff.java	2016-10-17 10:58:46.174126974 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableHintsForDC.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableHintsForDC.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableHintsForDC.java	2016-10-17 13:11:26.293759811 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableHintsForDC.java	2016-10-17 10:58:46.174126974 +0200
+@@ -20,8 +20,8 @@
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableThrift.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableThrift.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/EnableThrift.java	2016-10-17 13:11:26.293759811 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/EnableThrift.java	2016-10-17 10:58:46.174126974 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/FailureDetectorInfo.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/FailureDetectorInfo.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/FailureDetectorInfo.java	2016-10-17 13:11:26.293759811 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/FailureDetectorInfo.java	2016-10-17 10:58:46.174126974 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.util.List;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Flush.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Flush.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Flush.java	2016-10-17 13:11:26.293759811 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Flush.java	2016-10-17 10:58:46.175126982 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GcStats.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GcStats.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GcStats.java	2016-10-17 13:11:26.293759811 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GcStats.java	2016-10-17 10:58:46.175126982 +0200
+@@ -20,7 +20,7 @@
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ @Command(name = "gcstats", description = "Print GC Statistics")
+ public class GcStats extends NodeToolCmd
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThreshold.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThreshold.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThreshold.java	2016-10-17 13:11:26.293759811 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThreshold.java	2016-10-17 10:58:46.175126982 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThroughput.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThroughput.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThroughput.java	2016-10-17 13:11:26.294759821 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetCompactionThroughput.java	2016-10-17 10:58:46.175126982 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetEndpoints.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetEndpoints.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetEndpoints.java	2016-10-17 13:11:26.294759821 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetEndpoints.java	2016-10-17 10:58:46.175126982 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.net.InetAddress;
+ import java.util.ArrayList;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetInterDCStreamThroughput.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetInterDCStreamThroughput.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetInterDCStreamThroughput.java	2016-10-17 13:11:26.294759821 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetInterDCStreamThroughput.java	2016-10-17 10:58:46.175126982 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetLoggingLevels.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetLoggingLevels.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetLoggingLevels.java	2016-10-17 13:11:26.294759821 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetLoggingLevels.java	2016-10-17 10:58:46.175126982 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.util.Map;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetSSTables.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetSSTables.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetSSTables.java	2016-10-17 13:11:26.294759821 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetSSTables.java	2016-10-17 13:13:11.617792304 +0200
+@@ -18,13 +18,13 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+-import io.airlift.command.Option;
++import io.airlift.airline.Option;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+ 
+@@ -53,4 +53,4 @@
+             System.out.println(sstable);
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetStreamThroughput.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetStreamThroughput.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetStreamThroughput.java	2016-10-17 13:11:26.294759821 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetStreamThroughput.java	2016-10-17 10:58:46.176126991 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetTimeout.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetTimeout.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetTimeout.java	2016-10-17 13:11:26.294759821 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetTimeout.java	2016-10-17 10:58:46.176126991 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetTraceProbability.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetTraceProbability.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GetTraceProbability.java	2016-10-17 13:11:26.295759830 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GetTraceProbability.java	2016-10-17 10:58:46.176126991 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GossipInfo.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GossipInfo.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/GossipInfo.java	2016-10-17 13:11:26.295759830 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/GossipInfo.java	2016-10-17 10:58:46.176126991 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Info.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Info.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Info.java	2016-10-17 13:11:26.295759830 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Info.java	2016-10-17 10:58:46.176126991 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.lang.management.MemoryUsage;
+ import java.util.Iterator;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/InvalidateCounterCache.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/InvalidateCounterCache.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/InvalidateCounterCache.java	2016-10-17 13:11:26.295759830 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/InvalidateCounterCache.java	2016-10-17 10:58:46.176126991 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/InvalidateKeyCache.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/InvalidateKeyCache.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/InvalidateKeyCache.java	2016-10-17 13:11:26.295759830 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/InvalidateKeyCache.java	2016-10-17 10:58:46.177126999 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/InvalidateRowCache.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/InvalidateRowCache.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/InvalidateRowCache.java	2016-10-17 13:11:26.295759830 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/InvalidateRowCache.java	2016-10-17 10:58:46.177126999 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Join.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Join.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Join.java	2016-10-17 13:11:26.295759830 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Join.java	2016-10-17 10:58:46.177126999 +0200
+@@ -18,7 +18,7 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkState;
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOException;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ListSnapshots.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ListSnapshots.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ListSnapshots.java	2016-10-17 13:11:26.296759840 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ListSnapshots.java	2016-10-17 10:58:46.177126999 +0200
+@@ -22,7 +22,7 @@
+ import java.util.Set;
+ import javax.management.openmbean.TabularData;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.io.util.FileUtils;
+ import org.apache.cassandra.tools.NodeProbe;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Move.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Move.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Move.java	2016-10-17 13:11:26.296759840 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Move.java	2016-10-17 10:58:46.177126999 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOException;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/NetStats.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/NetStats.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/NetStats.java	2016-10-17 13:11:26.296759840 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/NetStats.java	2016-10-17 10:58:46.177126999 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.util.Set;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/PauseHandoff.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/PauseHandoff.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/PauseHandoff.java	2016-10-17 13:11:26.296759840 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/PauseHandoff.java	2016-10-17 10:58:46.177126999 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ProxyHistograms.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ProxyHistograms.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ProxyHistograms.java	2016-10-17 13:11:26.297759850 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ProxyHistograms.java	2016-10-17 10:58:46.177126999 +0200
+@@ -18,7 +18,7 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static java.lang.String.format;
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RangeKeySample.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RangeKeySample.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RangeKeySample.java	2016-10-17 13:11:26.297759850 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RangeKeySample.java	2016-10-17 10:58:46.178127007 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.util.List;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RebuildIndex.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RebuildIndex.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RebuildIndex.java	2016-10-17 13:11:26.298759860 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RebuildIndex.java	2016-10-17 10:58:46.178127007 +0200
+@@ -19,8 +19,8 @@
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static com.google.common.collect.Iterables.toArray;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Rebuild.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Rebuild.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Rebuild.java	2016-10-17 13:11:26.298759860 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Rebuild.java	2016-10-17 10:52:30.337742600 +0200
+@@ -17,9 +17,9 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+@@ -52,4 +52,4 @@
+ 
+         probe.rebuild(sourceDataCenterName, keyspace, tokens);
+     }
+-}
+\ No newline at end of file
++}
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Refresh.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Refresh.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Refresh.java	2016-10-17 13:11:26.298759860 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Refresh.java	2016-10-17 10:58:46.178127007 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RefreshSizeEstimates.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RefreshSizeEstimates.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RefreshSizeEstimates.java	2016-10-17 13:11:26.299759870 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RefreshSizeEstimates.java	2016-10-17 10:58:46.178127007 +0200
+@@ -18,7 +18,7 @@
+ 
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ReloadTriggers.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ReloadTriggers.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ReloadTriggers.java	2016-10-17 13:11:26.299759870 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ReloadTriggers.java	2016-10-17 10:58:46.178127007 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RelocateSSTables.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RelocateSSTables.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RelocateSSTables.java	2016-10-17 13:11:26.299759870 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RelocateSSTables.java	2016-10-17 10:58:46.178127007 +0200
+@@ -20,9 +20,9 @@
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RemoveNode.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RemoveNode.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/RemoveNode.java	2016-10-17 13:11:26.300759879 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/RemoveNode.java	2016-10-17 10:58:46.179127016 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Repair.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Repair.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Repair.java	2016-10-17 13:11:26.300759879 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Repair.java	2016-10-17 10:58:46.179127016 +0200
+@@ -19,9 +19,9 @@
+ 
+ import static com.google.common.collect.Lists.newArrayList;
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.util.ArrayList;
+ import java.util.HashMap;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ReplayBatchlog.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ReplayBatchlog.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ReplayBatchlog.java	2016-10-17 13:11:26.300759879 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ReplayBatchlog.java	2016-10-17 10:58:46.179127016 +0200
+@@ -21,7 +21,7 @@
+ import java.io.IOError;
+ import java.io.IOException;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ResetLocalSchema.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ResetLocalSchema.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ResetLocalSchema.java	2016-10-17 13:11:26.300759879 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ResetLocalSchema.java	2016-10-17 10:58:46.179127016 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.io.IOException;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ResumeHandoff.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ResumeHandoff.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ResumeHandoff.java	2016-10-17 13:11:26.300759879 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ResumeHandoff.java	2016-10-17 10:58:46.179127016 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Ring.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Ring.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Ring.java	2016-10-17 13:11:26.301759889 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Ring.java	2016-10-17 10:58:46.179127016 +0200
+@@ -18,9 +18,9 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static java.lang.String.format;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.net.InetAddress;
+ import java.net.UnknownHostException;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Scrub.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Scrub.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Scrub.java	2016-10-17 13:11:26.301759889 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Scrub.java	2016-10-17 10:58:46.179127016 +0200
+@@ -17,9 +17,9 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCacheCapacity.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCacheCapacity.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCacheCapacity.java	2016-10-17 13:11:26.301759889 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCacheCapacity.java	2016-10-17 10:58:46.180127024 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCacheKeysToSave.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCacheKeysToSave.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCacheKeysToSave.java	2016-10-17 13:11:26.301759889 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCacheKeysToSave.java	2016-10-17 10:58:46.180127024 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThreshold.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThreshold.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThreshold.java	2016-10-17 13:11:26.301759889 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThreshold.java	2016-10-17 10:58:46.180127024 +0200
+@@ -19,8 +19,8 @@
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static java.lang.Integer.parseInt;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThroughput.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThroughput.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThroughput.java	2016-10-17 13:11:26.301759889 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetCompactionThroughput.java	2016-10-17 10:58:46.180127024 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetHintedHandoffThrottleInKB.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetHintedHandoffThrottleInKB.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetHintedHandoffThrottleInKB.java	2016-10-17 13:11:26.301759889 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetHintedHandoffThrottleInKB.java	2016-10-17 10:58:46.180127024 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetInterDCStreamThroughput.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetInterDCStreamThroughput.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetInterDCStreamThroughput.java	2016-10-17 13:11:26.302759899 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetInterDCStreamThroughput.java	2016-10-17 10:58:46.180127024 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetLoggingLevel.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetLoggingLevel.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetLoggingLevel.java	2016-10-17 13:11:26.302759899 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetLoggingLevel.java	2016-10-17 10:58:46.180127024 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetStreamThroughput.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetStreamThroughput.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetStreamThroughput.java	2016-10-17 13:11:26.302759899 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetStreamThroughput.java	2016-10-17 10:58:46.181127033 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetTimeout.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetTimeout.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetTimeout.java	2016-10-17 13:11:26.302759899 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetTimeout.java	2016-10-17 10:58:46.181127033 +0200
+@@ -17,8 +17,8 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetTraceProbability.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetTraceProbability.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/SetTraceProbability.java	2016-10-17 13:11:26.302759899 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/SetTraceProbability.java	2016-10-17 10:58:46.181127033 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Snapshot.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Snapshot.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Snapshot.java	2016-10-17 13:11:26.302759899 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Snapshot.java	2016-10-17 10:58:46.181127033 +0200
+@@ -19,9 +19,9 @@
+ 
+ import static com.google.common.collect.Iterables.toArray;
+ import static org.apache.commons.lang3.StringUtils.join;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.io.IOException;
+ import java.util.ArrayList;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusBackup.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusBackup.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusBackup.java	2016-10-17 13:11:26.302759899 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusBackup.java	2016-10-17 10:58:46.181127033 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusBinary.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusBinary.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusBinary.java	2016-10-17 13:11:26.303759909 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusBinary.java	2016-10-17 10:58:46.181127033 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusGossip.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusGossip.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusGossip.java	2016-10-17 13:11:26.303759909 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusGossip.java	2016-10-17 10:58:46.182127041 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusHandoff.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusHandoff.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusHandoff.java	2016-10-17 13:11:26.303759909 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusHandoff.java	2016-10-17 10:58:46.182127041 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Status.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Status.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Status.java	2016-10-17 13:11:26.303759909 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Status.java	2016-10-17 10:58:46.183127050 +0200
+@@ -17,9 +17,9 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.net.InetAddress;
+ import java.net.UnknownHostException;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusThrift.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusThrift.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StatusThrift.java	2016-10-17 13:11:26.303759909 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StatusThrift.java	2016-10-17 10:58:46.183127050 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StopDaemon.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StopDaemon.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/StopDaemon.java	2016-10-17 13:11:26.303759909 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/StopDaemon.java	2016-10-17 10:58:46.183127050 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Stop.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Stop.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Stop.java	2016-10-17 13:11:26.303759909 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Stop.java	2016-10-17 10:58:46.184127058 +0200
+@@ -17,9 +17,9 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import org.apache.cassandra.db.compaction.OperationType;
+ import org.apache.cassandra.tools.NodeProbe;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TableHistograms.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TableHistograms.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TableHistograms.java	2016-10-17 13:11:26.304759919 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TableHistograms.java	2016-10-17 10:58:46.184127058 +0200
+@@ -19,8 +19,8 @@
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static java.lang.String.format;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TableStats.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TableStats.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TableStats.java	2016-10-17 13:11:26.304759919 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TableStats.java	2016-10-17 10:55:04.295160059 +0200
+@@ -21,9 +21,9 @@
+ import javax.management.InstanceNotFoundException;
+ 
+ import com.google.common.collect.ArrayListMultimap;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import org.apache.cassandra.db.ColumnFamilyStoreMBean;
+ import org.apache.cassandra.io.util.FileUtils;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TopPartitions.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TopPartitions.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TopPartitions.java	2016-10-17 13:11:26.304759919 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TopPartitions.java	2016-10-17 10:58:46.185127067 +0200
+@@ -19,9 +19,9 @@
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static org.apache.commons.lang3.StringUtils.join;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.util.ArrayList;
+ import java.util.Collections;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TpStats.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TpStats.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TpStats.java	2016-10-17 13:11:26.304759919 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TpStats.java	2016-10-17 10:58:46.185127067 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import java.util.Map;
+ 
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TruncateHints.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TruncateHints.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/TruncateHints.java	2016-10-17 13:11:26.304759919 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/TruncateHints.java	2016-10-17 10:58:46.186127075 +0200
+@@ -18,8 +18,8 @@
+ package org.apache.cassandra.tools.nodetool;
+ 
+ import static org.apache.commons.lang3.StringUtils.EMPTY;
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/UpgradeSSTable.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/UpgradeSSTable.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/UpgradeSSTable.java	2016-10-17 13:11:26.304759919 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/UpgradeSSTable.java	2016-10-17 10:58:46.186127075 +0200
+@@ -17,9 +17,9 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Verify.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Verify.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Verify.java	2016-10-17 13:11:26.304759919 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Verify.java	2016-10-17 10:58:46.186127075 +0200
+@@ -17,9 +17,9 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
+-import io.airlift.command.Option;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
++import io.airlift.airline.Option;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Version.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Version.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/Version.java	2016-10-17 13:11:26.305759928 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/Version.java	2016-10-17 10:58:46.186127075 +0200
+@@ -17,7 +17,7 @@
+  */
+ package org.apache.cassandra.tools.nodetool;
+ 
+-import io.airlift.command.Command;
++import io.airlift.airline.Command;
+ 
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ViewBuildStatus.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ViewBuildStatus.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/nodetool/ViewBuildStatus.java	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/nodetool/ViewBuildStatus.java	2016-10-17 13:13:41.405084309 +0200
+@@ -22,8 +22,8 @@
+ import java.util.List;
+ import java.util.Map;
+ 
+-import io.airlift.command.Arguments;
+-import io.airlift.command.Command;
++import io.airlift.airline.Arguments;
++import io.airlift.airline.Command;
+ import org.apache.cassandra.tools.NodeProbe;
+ import org.apache.cassandra.tools.NodeTool;
+ import org.apache.cassandra.tools.nodetool.formatter.TableBuilder;
+diff -ur cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/NodeTool.java cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/NodeTool.java
+--- cassandra-cassandra-3.9/src/java/org/apache/cassandra/tools/NodeTool.java	2016-10-17 13:11:26.305759928 +0200
++++ cassandra-cassandra-3.9new/src/java/org/apache/cassandra/tools/NodeTool.java	2016-10-17 10:58:46.186127075 +0200
+@@ -28,7 +28,7 @@
+ import com.google.common.base.Throwables;
+ import com.google.common.collect.*;
+ 
+-import io.airlift.command.*;
++import io.airlift.airline.*;
+ 
+ import org.apache.cassandra.locator.EndpointSnitchInfoMBean;
+ import org.apache.cassandra.tools.nodetool.*;
