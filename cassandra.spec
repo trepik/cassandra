@@ -15,6 +15,13 @@ Source0:	https://github.com/apache/%{pkg_name}/archive/%{pkg_name}-%{version}.ta
 Source1:	%{pkg_name}.logrotate
 Source2:	%{pkg_name}d.service
 Source3:	%{pkg_name}-tmpfile
+# pom files are not generated but used are the ones from mavencentral
+# because of orphaned mavent-ant-task package doing the work in this case
+# failed koji build: http://koji.fedoraproject.org/koji/taskinfo?taskID=15542960
+Source4:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-all/%{version}/%{pkg_name}-all-%{version}.pom
+Source5:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-thrift/%{version}/%{pkg_name}-thrift-%{version}.pom
+Source6:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-clientutil/%{version}/%{pkg_name}-clientutil-%{version}.pom
+Source7:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-parent/%{version}/%{pkg_name}-parent-%{version}.pom
 
 # fix encoding error
 Patch0:		%{pkg_name}-%{version}-build.patch
@@ -31,69 +38,68 @@ Patch4:		%{pkg_name}-%{version}-thrift.patch
 Patch5:		%{pkg_name}-%{version}-slf4j.patch
 
 %{?scl:Requires: %scl_runtime}
-Requires:	jpackage-utils
 Requires(pre):	shadow-utils
 
 BuildRequires:	systemd
-BuildRequires:	python2-devel
-BuildRequires:	Cython
 BuildRequires:	%{?scl_prefix_maven}maven-local
 BuildRequires:	%{?scl_prefix_java_common}ant
-# in rh-maven33: 1.4.3, needed: 1.6.0
-BuildRequires:	%{?scl_prefix_maven}jflex
-# in cassandra39: 0.9.1, needed: 0.9.2
-BuildRequires:	%{?scl_prefix}libthrift-java
+BuildRequires:	%{?scl_prefix_java_common}ecj
 BuildRequires:	%{?scl_prefix}jamm
 BuildRequires:	%{?scl_prefix}stream-lib
 BuildRequires:	%{?scl_prefix}metrics
+BuildRequires:	%{?scl_prefix}metrics-jvm
 BuildRequires:	%{?scl_prefix}json_simple
 BuildRequires:	%{?scl_prefix}compile-command-annotations
-# using high-scale-lib from stephenc, no Cassandra original
-#BuildRequires:	 mvn(com.boundary:high-scale-lib)
-BuildRequires:	%{?scl_prefix}high-scale-lib
-# temporarly removed as it is optional
-#BuildRequires:	mvn(com.datastax.cassandra:cassandra-driver-core)
-# TODO
-#BuildRequires:	%{?scl_prefix}lz4-java
-#BuildRequires:	%{?scl_prefix}snappy-java
 BuildRequires:	%{?scl_prefix}jBCrypt
-# probably don't need any more
-BuildRequires:	%{?scl_prefix}concurrentlinkedhashmap-lru
-# TODO
-#BuildRequires:	%{?scl_prefix}ohc
-#BuildRequires:	%{?scl_prefix}ohc-core-j8
-# using hadoop-common instead of hadoop-core, no Cassandra original
-#BuildRequires:	mvn(org.apache.hadoop:hadoop-core)
-# temporarly removed as it is optional
-#BuildRequires:	hadoop-common
-#BuildRequires:	hadoop-mapreduce
 BuildRequires:	%{?scl_prefix}concurrent-trees
-# TODO
-BuildRequires:	%{?scl_prefix}hppc
-# using repackaging of the snowball stemmer so that it's available on Maven Central 
-#BuildRequires:	mvn(com.github.rholder:snowball-stemmer)
-BuildRequires:	%{?scl_prefix}snowball-java
-# not needed any more I guess
-#BuildRequires:	mvn(net.mintern:primitive)
 BuildRequires:	%{?scl_prefix}logback
 BuildRequires:	%{?scl_prefix}metrics-reporter-config
 BuildRequires:	%{?scl_prefix}compress-lzf
 BuildRequires:	%{?scl_prefix}disruptor-thrift-server
 BuildRequires:	%{?scl_prefix}airline
-# TODO
-BuildRequires:	%{?scl_prefix}sigar
+BuildRequires:	%{?scl_prefix}jmh
+BuildRequires:	%{?scl_prefix}byteman
+# using high-scale-lib from stephenc, no Cassandra original
+#BuildRequires:	 mvn(com.boundary:high-scale-lib)
+BuildRequires:	%{?scl_prefix}high-scale-lib
+# using repackaging of the snowball stemmer so that it's available on Maven Central 
+#BuildRequires:	mvn(com.github.rholder:snowball-stemmer)
+BuildRequires:	%{?scl_prefix}snowball-java
+# probably won't need in the future
+BuildRequires:	%{?scl_prefix}concurrentlinkedhashmap-lru
+# in rh-maven33: 1.4.3, needed: 1.6.0
+BuildRequires:	%{?scl_prefix_maven}jflex
 # in rh-java-common: 1.7.4, needed: 1.7.7
 BuildRequires:	%{?scl_prefix_java_common}log4j-over-slf4j
 # in rh-java-common: 1.7.4, needed: 1.7.7
 BuildRequires:	%{?scl_prefix_java_common}jcl-over-slf4j
-# test dependencies
 # in rh-java-common: 1.9.2, needed: 1.9.4
 BuildRequires:	%{?scl_prefix_java_common}ant-junit
-# TODO v 3.0.3
-#BuildRequires:	mvn(org.jboss.byteman:byteman)
-BuildRequires:	%{?scl_prefix}jmh
+# in rh-java-common: 4.0.28, needed: 4.0.39.Final
+BuildRequires:	%{?scl_prefix_java_common}netty
+# in cassandra39: 0.9.1, needed: 0.9.2
+BuildRequires:	%{?scl_prefix}libthrift-java
+# TODO
+BuildRequires:	%{?scl_prefix}antlr3
+BuildRequires:	%{?scl_prefix}jackson
+BuildRequires:	%{?scl_prefix}cassandra-java-driver
+BuildRequires:	%{?scl_prefix}lz4-java
+BuildRequires:	%{?scl_prefix}snappy-java
+BuildRequires:	%{?scl_prefix}ohc
+BuildRequires:	%{?scl_prefix}ohc-core-j8
+BuildRequires:	%{?scl_prefix}hppc
+BuildRequires:	%{?scl_prefix}primitive
+BuildRequires:	%{?scl_prefix}sigar-java
+BuildRequires:	%{?scl_prefix}HdrHistogram
+#BuildRequires:	%{?scl_prefix}caffeine
 # scl dependencies
-%{?scl:Requires:	%scl_require rh-maven33}
+%{?scl:Requires: %scl_require rh-maven33}
+
+# temporarly removed as it is optional
+# using hadoop-common instead of hadoop-core, no Cassandra original
+#BuildRequires:	mvn(org.apache.hadoop:hadoop-core)
+#BuildRequires:	hadoop-common
+#BuildRequires:	hadoop-mapreduce
 
 %description
 Cassandra is a partitioned row store. Rows are organized into tables with
@@ -128,6 +134,19 @@ Requires:	python-cassandra-driver
 %description clientutil
 Utilities usable by client for %{pkg_name}
 
+# source codes of cqlshlib are not python3 compatible, therefore using python2
+%package python2-cqlshlib
+Summary:	Commandline interface for %{name}
+BuildRequires:	python2-devel
+BuildRequires:	Cython
+Requires:	%{name} = %{version}-%{release}
+Requires:	python-cassandra-driver
+Provides:	cqlsh
+%{?python_provide:%python_provide python2-cqlshlib}
+
+%description python2-cqlshlib
+Commandline client used to communicate with %{pkg_name} server.
+
 %package stress
 Summary:	Stress testing utility for %{pkg_name}
 Requires:	%{pkg_name} = %{version}-%{release}
@@ -147,6 +166,9 @@ This package contains the API documentation for %{pkg_name}.
 cp -pr %{pkg_name}-%{pkg_name}-%{version}/* .
 rm -r %{pkg_name}-%{pkg_name}-%{version}
 
+# temporal HACK for caffeine
+mv lib/caffeine-2.2.6.jar lib/caffeine-2.2.6.jar.bak
+
 # remove binary and library files
 find -name "*.class" -print -delete
 find -name "*.jar" -print -delete
@@ -164,6 +186,12 @@ find -name "*.bat" -print -delete
 find -name "*.pyc" -print -delete
 find -name "*py.class" -print -delete
 
+# remove hadoop
+rm src/java/org/apache/cassandra/client/RingCache.java
+rm -r src/java/org/apache/cassandra/hadoop
+rm test/unit/org/apache/cassandra/client/TestRingCache.java
+rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
+
 # create links to installed libraries
 ln -sf $(build-classpath antlr3) lib/antlr-3.5.2.jar
 ln -sf $(build-classpath stringtemplate4) lib/ST4-4.0.8.jar
@@ -174,17 +202,16 @@ ln -sf $(build-classpath slf4j/api) lib/slf4j-api-1.7.7.jar
 ln -sf $(build-classpath guava) lib/guava-18.0.jar
 ln -sf $(build-classpath jamm) lib/jamm-0.3.0.jar
 ln -sf $(build-classpath stream-lib) lib/stream-2.5.2.jar
-ln -sf $(build-classpath metrics/metrics-core) lib/metrics-core-3.0.1.jar
-ln -sf $(build-classpath metrics/metrics-logback) lib/metrics-logback-3.0.1.jar
+ln -sf $(build-classpath metrics/metrics-core) lib/metrics-core-3.1.0.jar
+ln -sf $(build-classpath metrics/metrics-jvm) lib/metrics-jvm-3.1.0.jar
 ln -sf $(build-classpath json_simple) lib/json-simple-1.1.jar
 ln -sf $(build-classpath antlr3-runtime) lib/antlr-runtime-3.5.2.jar
 ln -sf $(build-classpath compile-command-annotations) lib/compile-command-annotations-1.2.0.jar
 # https://bugzilla.redhat.com/show_bug.cgi?id=1308556
 ln -sf $(build-classpath high-scale-lib/high-scale-lib) lib/high-scale-lib-1.0.6.jar
-# temporarly removed because it is optional
-#ln -sf $(build-classpath cassandra-java-driver/cassandra-driver-core) lib/cassandra-driver-core-3.0.0.jar
+ln -sf $(build-classpath cassandra-java-driver/cassandra-driver-core) lib/cassandra-driver-core-3.0.0.jar
 ln -sf $(build-classpath netty/netty-all) lib/netty-all-4.0.23.Final.jar
-ln -sf $(build-classpath lz4) lib/lz4-1.3.0.jar
+ln -sf $(build-classpath lz4-java) lib/lz4-1.3.0.jar
 ln -sf $(build-classpath snappy-java) lib/snappy-java-1.1.1.7.jar
 ln -sf $(build-classpath jBCrypt) lib/jbcrypt-0.3m.jar
 ln -sf $(build-classpath concurrentlinkedhashmap-lru) lib/concurrentlinkedhashmap-lru-1.4.jar
@@ -228,8 +255,12 @@ ln -sf $(build-classpath apache-commons-io) lib/apache-commons-io-2.4.jar
 ln -sf $(build-classpath byteman/byteman-bmunit) lib/byteman-bmunit-3.0.3.jar
 ln -sf $(build-classpath commons-collections) lib/commons-collections-3.2.1.jar
 ln -sf $(build-classpath jmh/jmh-core) lib/jmh-core-1.1.1.jar
+ln -sf $(build-classpath HdrHistogram) lib/HdrHistogram-2.1.9.jar
 # binaries dependencies
 ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
+
+# temporal HACK for caffeine
+mv lib/caffeine-2.2.6.jar.bak lib/caffeine-2.2.6.jar
 
 # build patch
 %patch0 -p1
@@ -244,7 +275,21 @@ ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
 # slf4j patch
 %patch5 -p1
 
+# copy pom files
+mkdir build
+cp -p %{SOURCE4} build/%{pkg_name}-%{version}.pom
+cp -p %{SOURCE5} build/%{pkg_name}-thrift-%{version}.pom
+cp -p %{SOURCE6} build/%{pkg_name}-clientutil-%{version}.pom
+cp -p %{SOURCE7} build/%{pkg_name}-%{version}-parent.pom
+
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
+# update dependencies that are not correct in the downloaded pom files
+%pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{name}-%{version}.pom
+%pom_change_dep com.github.rholder:snowball-stemmer org.tartarus:snowball build/%{name}-thrift-%{version}.pom
+
+# HACK temporary remove caffeine as a dependency
+%pom_remove_dep -r :caffeine build/%{pkg_name}-%{version}.pom
+
 %mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" %{pkg_name}-parent
 %mvn_package ":%{pkg_name}-thrift"  %{pkg_name}-thrift
 %mvn_package ":%{pkg_name}-clientutil" %{pkg_name}-clientutil
@@ -344,11 +389,7 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 
 %files clientutil -f .mfiles-%{pkg_name}-clientutil
-%doc conf/cqlshrc.sample
 %license LICENSE.txt NOTICE.txt
-%attr(755, root, root) %{_bindir}/cqlsh
-%{python2_sitearch}/cqlshlib
-%{python2_sitearch}/%{pkg_name}_pylib-0.0.0-py%{python2_version}.egg-info
 %attr(755, root, root) %{_bindir}/nodetool
 %attr(755, root, root) %{_bindir}/sstableloader
 %attr(755, root, root) %{_bindir}/sstablescrub
@@ -362,6 +403,13 @@ exit 0
 %attr(755, root, root) %{_bindir}/sstableofflinerelevel
 %attr(755, root, root) %{_bindir}/sstablerepairedset
 %attr(755, root, root) %{_bindir}/sstablesplit
+
+%files python2-cqlshlib
+%doc conf/cqlshrc.sample
+%license LICENSE.txt NOTICE.txt
+%attr(755, root, root) %{_bindir}/cqlsh
+%{python2_sitearch}/cqlshlib
+%{python2_sitearch}/%{name}_pylib-0.0.0-py%{python2_version}.egg-info
 
 %files stress  
 %license LICENSE.txt NOTICE.txt
