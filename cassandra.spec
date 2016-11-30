@@ -36,6 +36,8 @@ Patch3:		%{pkg_name}-%{version}-hppc.patch
 Patch4:		%{pkg_name}-%{version}-thrift.patch
 # add two more parameters for SubstituteLogger constructor in slf4j
 Patch5:		%{pkg_name}-%{version}-slf4j.patch
+# remove net.mintern:primitive as it will be removed in next upstream release
+Patch6:		%{pkg_name}-%{version}-remove-primitive.patch
 
 %{?scl:Requires: %scl_runtime}
 Requires(pre):	shadow-utils
@@ -59,6 +61,9 @@ BuildRequires:	%{?scl_prefix}disruptor-thrift-server
 BuildRequires:	%{?scl_prefix}airline
 BuildRequires:	%{?scl_prefix}jmh
 BuildRequires:	%{?scl_prefix}byteman
+BuildRequires:	%{?scl_prefix}HdrHistogram
+BuildRequires:	%{?scl_prefix}sigar-java
+BuildRequires:	%{?scl_prefix}jackson
 # using high-scale-lib from stephenc, no Cassandra original
 #BuildRequires:	 mvn(com.boundary:high-scale-lib)
 BuildRequires:	%{?scl_prefix}high-scale-lib
@@ -81,17 +86,13 @@ BuildRequires:	%{?scl_prefix_java_common}netty
 BuildRequires:	%{?scl_prefix}libthrift-java
 # TODO
 BuildRequires:	%{?scl_prefix}antlr3
-BuildRequires:	%{?scl_prefix}jackson
 BuildRequires:	%{?scl_prefix}cassandra-java-driver
 BuildRequires:	%{?scl_prefix}lz4-java
 BuildRequires:	%{?scl_prefix}snappy-java
 BuildRequires:	%{?scl_prefix}ohc
 BuildRequires:	%{?scl_prefix}ohc-core-j8
 BuildRequires:	%{?scl_prefix}hppc
-BuildRequires:	%{?scl_prefix}primitive
-BuildRequires:	%{?scl_prefix}sigar-java
-BuildRequires:	%{?scl_prefix}HdrHistogram
-#BuildRequires:	%{?scl_prefix}caffeine
+BuildRequires:	%{?scl_prefix}caffeine
 # scl dependencies
 %{?scl:Requires: %scl_require rh-maven33}
 
@@ -166,9 +167,6 @@ This package contains the API documentation for %{pkg_name}.
 cp -pr %{pkg_name}-%{pkg_name}-%{version}/* .
 rm -r %{pkg_name}-%{pkg_name}-%{version}
 
-# temporal HACK for caffeine
-mv lib/caffeine-2.2.6.jar lib/caffeine-2.2.6.jar.bak
-
 # remove binary and library files
 find -name "*.class" -print -delete
 find -name "*.jar" -print -delete
@@ -192,75 +190,72 @@ rm -r src/java/org/apache/cassandra/hadoop
 rm test/unit/org/apache/cassandra/client/TestRingCache.java
 rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
 
-# create links to installed libraries
-ln -sf $(build-classpath antlr3) lib/antlr-3.5.2.jar
-ln -sf $(build-classpath stringtemplate4) lib/ST4-4.0.8.jar
-ln -sf $(build-classpath jsr-305) lib/jsr305-2.0.2.jar
-ln -sf $(build-classpath commons-lang3) lib/commons-lang3-3.1.jar
-ln -sf $(build-classpath libthrift) lib/libthrift-0.9.2.jar
-ln -sf $(build-classpath slf4j/api) lib/slf4j-api-1.7.7.jar
-ln -sf $(build-classpath guava) lib/guava-18.0.jar
-ln -sf $(build-classpath jamm) lib/jamm-0.3.0.jar
-ln -sf $(build-classpath stream-lib) lib/stream-2.5.2.jar
-ln -sf $(build-classpath metrics/metrics-core) lib/metrics-core-3.1.0.jar
-ln -sf $(build-classpath metrics/metrics-jvm) lib/metrics-jvm-3.1.0.jar
-ln -sf $(build-classpath json_simple) lib/json-simple-1.1.jar
-ln -sf $(build-classpath antlr3-runtime) lib/antlr-runtime-3.5.2.jar
-ln -sf $(build-classpath compile-command-annotations) lib/compile-command-annotations-1.2.0.jar
+# build jar repositories for dependencies
+build-jar-repository lib antlr3
+build-jar-repository lib stringtemplate4
+build-jar-repository lib jsr-305
+build-jar-repository lib commons-lang3
+build-jar-repository lib libthrift
+build-jar-repository lib slf4j/api
+build-jar-repository lib guava
+build-jar-repository lib jamm
+build-jar-repository lib stream-lib
+build-jar-repository lib metrics/metrics-core
+build-jar-repository lib metrics/metrics-jvm
+build-jar-repository lib json_simple
+build-jar-repository lib antlr3-runtime
+build-jar-repository lib compile-command-annotations
 # https://bugzilla.redhat.com/show_bug.cgi?id=1308556
-ln -sf $(build-classpath high-scale-lib/high-scale-lib) lib/high-scale-lib-1.0.6.jar
-ln -sf $(build-classpath cassandra-java-driver/cassandra-driver-core) lib/cassandra-driver-core-3.0.0.jar
-ln -sf $(build-classpath netty/netty-all) lib/netty-all-4.0.23.Final.jar
-ln -sf $(build-classpath lz4-java) lib/lz4-1.3.0.jar
-ln -sf $(build-classpath snappy-java) lib/snappy-java-1.1.1.7.jar
-ln -sf $(build-classpath jBCrypt) lib/jbcrypt-0.3m.jar
-ln -sf $(build-classpath concurrentlinkedhashmap-lru) lib/concurrentlinkedhashmap-lru-1.4.jar
-ln -sf $(build-classpath ohc/ohc-core) lib/ohc-core-0.4.2.jar
+build-jar-repository lib high-scale-lib/high-scale-lib
+build-jar-repository lib cassandra-java-driver/cassandra-driver-core
+build-jar-repository lib netty/netty-all
+build-jar-repository lib lz4-java
+build-jar-repository lib snappy-java
+build-jar-repository lib jBCrypt
+build-jar-repository lib concurrentlinkedhashmap-lru
+build-jar-repository lib ohc/ohc-core
 # temporarly removed because it is optional
-#ln -sf $(build-classpath hadoop/hadoop-common) lib/hadoop-common-2.4.1.jar
-ln -sf $(build-classpath snakeyaml) lib/snakeyaml-1.11.jar
-ln -sf $(build-classpath jackson/jackson-core-asl) lib/jackson-core-asl-1.9.2.jar
-ln -sf $(build-classpath jackson/jackson-mapper-asl) lib/jackson-mapper-asl-1.9.2.jar
-ln -sf $(build-classpath ecj) lib/ecj-4.4.2.jar
-ln -sf $(build-classpath objectweb-asm/asm) lib/asm-5.0.4.jar
-ln -sf $(build-classpath commons-math3) lib/commons-math3-3.2.jar
+#build-jar-repository lib hadoop/hadoop-common
+build-jar-repository lib snakeyaml
+build-jar-repository lib jackson/jackson-core-asl
+build-jar-repository lib jackson/jackson-mapper-asl
+build-jar-repository lib ecj
+build-jar-repository lib objectweb-asm/asm
+build-jar-repository lib commons-math3
 # temporarly removed because it is optional
-#ln -sf $(build-classpath hadoop/hadoop-mapreduce-client-core) lib/hadoop-mapreduce-client-core-2.7.2.jar 
-ln -sf $(build-classpath concurrent-trees) lib/concurrent-trees-2.5.0.jar
-ln -sf $(build-classpath hppc) lib/hppc-0.5.4.jar
-ln -sf $(build-classpath snowball-java) lib/snowball-0.jar
-ln -sf $(build-classpath logback/logback-classic) lib/logback-classic-1.1.3.jar
-ln -sf $(build-classpath logback/logback-core) lib/logback-core-1.1.3.jar
-ln -sf $(build-classpath metrics-reporter-config/reporter-config) lib/reporter-config3-3.0.0.jar
-ln -sf $(build-classpath metrics-reporter-config/reporter-config-base) lib/reporter-config-base-3.0.0.jar
-ln -sf $(build-classpath joda-time) lib/joda-time-2.4.jar
-ln -sf $(build-classpath compress-lzf) lib/compress-lzf-0.8.4.jar
-ln -sf $(build-classpath disruptor-thrift-server) lib/thrift-server-0.3.8.jar
-ln -sf $(build-classpath commons-cli) lib/commons-cli-1.1.jar
-ln -sf $(build-classpath airline) lib/airline-0.6.jar
-ln -sf $(build-classpath jna) lib/jna-4.0.0.jar
-ln -sf $(build-classpath sigar) lib/sigar-1.6.4.jar
+#build-jar-repository lib hadoop/hadoop-mapreduce-client-core
+build-jar-repository lib concurrent-trees
+build-jar-repository lib hppc
+build-jar-repository lib snowball-java
+build-jar-repository lib logback/logback-classic
+build-jar-repository lib logback/logback-core
+build-jar-repository lib metrics-reporter-config/reporter-config
+build-jar-repository lib metrics-reporter-config/reporter-config-base
+build-jar-repository lib joda-time
+build-jar-repository lib compress-lzf
+build-jar-repository lib disruptor-thrift-server
+build-jar-repository lib commons-cli
+build-jar-repository lib airline
+build-jar-repository lib jna
+build-jar-repository lib sigar
 # temporarly removed because it is optional
-#ln -sf $(build-classpath hadoop/hadoop-annotations) lib/hadoop-annotations-2.4.1.jar
-ln -sf $(build-classpath primitive) lib/primitive-1.0.jar
-ln -sf $(build-classpath jflex) lib/jflex-1.6.0.jar
-ln -sf $(build-classpath java_cup) lib/java_cup-0.11b.jar
-ln -sf $(build-classpath commons-codec) lib/commons-codec-1.2.jar
+#build-jar-repository lib hadoop/hadoop-annotations
+build-jar-repository lib jflex
+build-jar-repository lib java_cup
+build-jar-repository lib commons-codec
+build-jar-repository lib caffeine
 # test dependencies
-ln -sf $(build-classpath junit) lib/junit-4.6.jar
-ln -sf $(build-classpath ant) lib/ant-1.9.4.jar
-ln -sf $(build-classpath ant/ant-junit) lib/ant-junit-1.9.4.jar
-ln -sf $(build-classpath hamcrest/core) lib/hamcrest-1.3.jar
-ln -sf $(build-classpath apache-commons-io) lib/apache-commons-io-2.4.jar
-ln -sf $(build-classpath byteman/byteman-bmunit) lib/byteman-bmunit-3.0.3.jar
-ln -sf $(build-classpath commons-collections) lib/commons-collections-3.2.1.jar
-ln -sf $(build-classpath jmh/jmh-core) lib/jmh-core-1.1.1.jar
-ln -sf $(build-classpath HdrHistogram) lib/HdrHistogram-2.1.9.jar
+build-jar-repository lib junit
+build-jar-repository lib ant
+build-jar-repository lib ant/ant-junit
+build-jar-repository lib hamcrest/core
+build-jar-repository lib apache-commons-io
+build-jar-repository lib byteman/byteman-bmunit
+build-jar-repository lib commons-collections
+build-jar-repository lib jmh/jmh-core
+build-jar-repository lib HdrHistogram
 # binaries dependencies
-ln -sf $(build-classpath javax.inject) lib/javax.inject.jar
-
-# temporal HACK for caffeine
-mv lib/caffeine-2.2.6.jar.bak lib/caffeine-2.2.6.jar
+build-jar-repository lib javax.inject
 
 # build patch
 %patch0 -p1
@@ -274,6 +269,8 @@ mv lib/caffeine-2.2.6.jar.bak lib/caffeine-2.2.6.jar
 %patch4 -p1
 # slf4j patch
 %patch5 -p1
+# remove primitive patch
+%patch6 -p1
 
 # copy pom files
 mkdir build
@@ -286,9 +283,6 @@ cp -p %{SOURCE7} build/%{pkg_name}-%{version}-parent.pom
 # update dependencies that are not correct in the downloaded pom files
 %pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{name}-%{version}.pom
 %pom_change_dep com.github.rholder:snowball-stemmer org.tartarus:snowball build/%{name}-thrift-%{version}.pom
-
-# HACK temporary remove caffeine as a dependency
-%pom_remove_dep -r :caffeine build/%{pkg_name}-%{version}.pom
 
 %mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" %{pkg_name}-parent
 %mvn_package ":%{pkg_name}-thrift"  %{pkg_name}-thrift
