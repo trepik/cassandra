@@ -7,7 +7,7 @@
 
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
-Release:	0%{?dist}
+Release:	1%{?dist}
 Summary:	OpenSource database Apache Cassandra
 License:	ASL 2.0
 URL:		http://cassandra.apache.org/
@@ -284,6 +284,9 @@ cp -p %{SOURCE7} build/%{pkg_name}-%{version}-parent.pom
 %pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{name}-%{version}.pom
 %pom_change_dep com.github.rholder:snowball-stemmer org.tartarus:snowball build/%{name}-thrift-%{version}.pom
 
+# remove primitve as a dependency
+%pom_remove_dep -r :primitive build/%{pkg_name}-thrift-%{version}.pom
+
 %mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" %{pkg_name}-parent
 %mvn_package ":%{pkg_name}-thrift"  %{pkg_name}-thrift
 %mvn_package ":%{pkg_name}-clientutil" %{pkg_name}-clientutil
@@ -416,4 +419,5 @@ exit 0
 %license LICENSE.txt
 
 %changelog
-
+* Thu Dec 01 2016 Tomas Repik <trepik@redhat.com> - 3.9-1
+- initial package

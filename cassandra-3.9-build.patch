@@ -1,6 +1,6 @@
-diff -ur cassandra-cassandra-3.9/build.xml cassandra-cassandra-3.9new/build.xml
---- cassandra-cassandra-3.9/build.xml	2016-11-30 08:28:00.724405397 +0100
-+++ cassandra-cassandra-3.9new/build.xml	2016-11-30 08:29:08.344036086 +0100
+diff -urN cassandra-cassandra-3.9/build.xml cassandra-cassandra-3.9new/build.xml
+--- cassandra-cassandra-3.9/build.xml	2016-11-30 11:59:19.400942783 +0100
++++ cassandra-cassandra-3.9new/build.xml	2016-12-01 10:49:05.383549756 +0100
 @@ -17,7 +17,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
@@ -34,7 +34,7 @@ diff -ur cassandra-cassandra-3.9/build.xml cassandra-cassandra-3.9new/build.xml
        <echo>Building Grammar ${build.src.antlr}/Cql.g  ...</echo>
        <java classname="org.antlr.Tool"
 -            classpath="${build.dir.lib}/jars/antlr-3.5.2.jar;${build.lib}/antlr-runtime-3.5.2.jar;${build.lib}/ST4-4.0.8.jar"
-+	    classpath="${build.lib}/antlr-3.5.2.jar;${build.lib}/antlr-runtime-3.5.2.jar;${build.lib}/ST4-4.0.8.jar"
++	    classpath="${build.lib}/[antlr3].jar;${build.lib}/[antlr3-runtime].jar;${build.lib}/[stringtemplate4]ST4.jar"
              fork="true"
              failonerror="true">
           <jvmarg value="-Xmx512M" />
@@ -43,7 +43,7 @@ diff -ur cassandra-cassandra-3.9/build.xml cassandra-cassandra-3.9new/build.xml
      -->
      <target name="generate-jflex-java" description="Generate Java from jflex grammar">
 -        <taskdef classname="jflex.anttask.JFlexTask" classpath="${build.lib}/jflex-1.6.0.jar" name="jflex" />
-+        <taskdef classname="jflex.anttask.JFlexTask" classpath="${build.lib}/jflex-1.6.0.jar;${build.lib}/java_cup-0.11b.jar" name="jflex" />
++        <taskdef classname="jflex.anttask.JFlexTask" classpath="${build.lib}/[jflex].jar;${build.lib}/[java_cup].jar" name="jflex" />
          <jflex file="${build.src.java}/org/apache/cassandra/index/sasi/analyzer/StandardTokenizerImpl.jflex" destdir="${build.src.gen-java}/" />
      </target>
  
