@@ -23,25 +23,30 @@ Source5:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-thri
 Source6:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-clientutil/%{version}/%{pkg_name}-clientutil-%{version}.pom
 Source7:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-parent/%{version}/%{pkg_name}-parent-%{version}.pom
 
-# fix encoding error
+# fix encoding, naming, classpaths and dependencies
 Patch0:		%{pkg_name}-%{version}-build.patch
 # airline0.7 imports fix in cassandra source, which is dependent on 0.6 version
+# https://issues.apache.org/jira/browse/CASSANDRA-12994
 Patch1:		%{pkg_name}-%{version}-airline0.7.patch
 # modify installed scripts
 Patch2:		%{pkg_name}-%{version}-scripts.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1340876
 # remove "Open" infix from all hppc classes
+# https://issues.apache.org/jira/browse/CASSANDRA-12995X
 Patch3:		%{pkg_name}-%{version}-hppc.patch
 # changes autoclosable issue with TTransport in thrift
+# https://bugzilla.redhat.com/show_bug.cgi?id=1183877
 Patch4:		%{pkg_name}-%{version}-thrift.patch
 # add two more parameters for SubstituteLogger constructor in slf4j
+# https://issues.apache.org/jira/browse/CASSANDRA-12996
 Patch5:		%{pkg_name}-%{version}-slf4j.patch
 # remove net.mintern:primitive as it will be removed in next upstream release
+# https://github.com/apache/cassandra/commit/8f0d5a295d34972ef719574df4aa1b59bf9e8478
 Patch6:		%{pkg_name}-%{version}-remove-primitive.patch
 
 %{?scl:Requires: %scl_runtime}
 Requires(pre):	shadow-utils
-
+%{?systemd_requires}
 BuildRequires:	systemd
 BuildRequires:	%{?scl_prefix_maven}maven-local
 BuildRequires:	%{?scl_prefix_java_common}ant
@@ -93,7 +98,7 @@ BuildRequires:	%{?scl_prefix}ohc
 BuildRequires:	%{?scl_prefix}ohc-core-j8
 BuildRequires:	%{?scl_prefix}hppc
 BuildRequires:	%{?scl_prefix}caffeine
-# scl dependencies
+# the SCL version of the package depends on rh-maven33 collection
 %{?scl:Requires: %scl_require rh-maven33}
 
 # temporarly removed as it is optional
@@ -287,9 +292,10 @@ cp -p %{SOURCE7} build/%{pkg_name}-%{version}-parent.pom
 # remove primitve as a dependency
 %pom_remove_dep -r :primitive build/%{pkg_name}-thrift-%{version}.pom
 
-%mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" %{pkg_name}-parent
-%mvn_package ":%{pkg_name}-thrift"  %{pkg_name}-thrift
-%mvn_package ":%{pkg_name}-clientutil" %{pkg_name}-clientutil
+%mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" parent
+%mvn_package ":%{pkg_name}-thrift" thrift
+%mvn_package ":%{pkg_name}-clientutil" clientutil
+%mvn_package ":%{pkg_name}-stress" stress
 %{?scl:EOF}
 
 %build
@@ -308,6 +314,7 @@ popd
 %mvn_artifact build/%{pkg_name}-%{version}.pom  build/%{pkg_name}-%{version}.jar
 %mvn_artifact build/%{pkg_name}-thrift-%{version}.pom  build/%{pkg_name}-thrift-%{version}.jar
 %mvn_artifact build/%{pkg_name}-clientutil-%{version}.pom  build/%{pkg_name}-clientutil-%{version}.jar
+%mvn_artifact org.apache.cassandra:%{pkg_name}-stress:%{version} build/tools/lib/%{pkg_name}-stress.jar
 
 %mvn_install -J build/javadoc/
 %{?scl:EOF}
@@ -344,7 +351,6 @@ install -p -D -m 755 tools/bin/sstablemetadata %{buildroot}%{_bindir}/sstablemet
 install -p -D -m 755 tools/bin/sstableofflinerelevel %{buildroot}%{_bindir}/sstableofflinerelevel
 install -p -D -m 755 tools/bin/sstablerepairedset %{buildroot}%{_bindir}/sstablerepairedset
 install -p -D -m 755 tools/bin/sstablesplit %{buildroot}%{_bindir}/sstablesplit
-install -p -D -m 755 build/tools/lib/%{pkg_name}-stress.jar %{buildroot}%{_javadir}/%{pkg_name}-stress.jar
 install -p -D -m 755 tools/bin/%{pkg_name}-stress %{buildroot}%{_bindir}/%{pkg_name}-stress
 install -p -D -m 755 tools/bin/%{pkg_name}-stressd %{buildroot}%{_bindir}/%{pkg_name}-stressd
 
@@ -364,6 +370,15 @@ if ! getent passwd %{pkg_name} >/dev/null ; then
 fi
 exit 0
 
+%post
+%systemd_post %{pkg_name}d.service
+
+%preun
+%systemd_preun %{pkg_name}d.service
+
+%postun
+%systemd_postun_with_restart %{pkg_name}d.service
+
 %files -f .mfiles
 %doc README.asc CHANGES.txt NEWS.txt
 %license LICENSE.txt NOTICE.txt
@@ -379,13 +394,13 @@ exit 0
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
 %{_unitdir}/%{pkg_name}d.service
 
-%files parent -f .mfiles-%{pkg_name}-parent
+%files parent -f .mfiles-parent
 %license LICENSE.txt NOTICE.txt
 
-%files thrift -f .mfiles-%{pkg_name}-thrift
+%files thrift -f .mfiles-thrift
 %license LICENSE.txt NOTICE.txt
 
-%files clientutil -f .mfiles-%{pkg_name}-clientutil
+%files clientutil -f .mfiles-clientutil
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/nodetool
 %attr(755, root, root) %{_bindir}/sstableloader
@@ -406,17 +421,16 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/cqlsh
 %{python2_sitearch}/cqlshlib
-%{python2_sitearch}/%{name}_pylib-0.0.0-py%{python2_version}.egg-info
+%{python2_sitearch}/%{pkg_name}_pylib-0.0.0-py%{python2_version}.egg-info
 
-%files stress  
+%files stress -f .mfiles-stress
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/%{pkg_name}-stress
-%attr(755, root, root) %{_javadir}/%{pkg_name}-stress.jar
 %attr(755, root, root) %{_bindir}/%{pkg_name}-stressd
 %attr(755, root, root) %{_bindir}/%{pkg_name}.in.sh
 
 %files javadoc -f .mfiles-javadoc
-%license LICENSE.txt
+%license LICENSE.txt NOTICE.txt
 
 %changelog
 * Thu Dec 01 2016 Tomas Repik <trepik@redhat.com> - 3.9-1
