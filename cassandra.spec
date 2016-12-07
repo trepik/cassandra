@@ -1,15 +1,16 @@
 %{?scl:%scl_package cassandra}
 %{!?scl:%global pkg_name %{name}}
 
-# not reserved yet
-%global allocated_gid 156
-%global allocated_uid 156
+%global allocated_gid 143
+%global allocated_uid 143
 
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
 Release:	1%{?dist}
 Summary:	OpenSource database Apache Cassandra
-License:	ASL 2.0
+# Apache (v2.0) BSD (3 clause):
+# ./src/java/org/apache/cassandra/utils/vint/VIntCoding.java
+License:	ASL 2.0 and BSD
 URL:		http://cassandra.apache.org/
 Source0:	https://github.com/apache/%{pkg_name}/archive/%{pkg_name}-%{version}.tar.gz
 Source1:	%{pkg_name}.logrotate
@@ -69,6 +70,7 @@ BuildRequires:	%{?scl_prefix}byteman
 BuildRequires:	%{?scl_prefix}HdrHistogram
 BuildRequires:	%{?scl_prefix}sigar-java
 BuildRequires:	%{?scl_prefix}jackson
+BuildRequires:	%{?scl_prefix}antlr3-tool
 # using high-scale-lib from stephenc, no Cassandra original
 #BuildRequires:	 mvn(com.boundary:high-scale-lib)
 BuildRequires:	%{?scl_prefix}high-scale-lib
@@ -90,7 +92,6 @@ BuildRequires:	%{?scl_prefix_java_common}netty
 # in cassandra39: 0.9.1, needed: 0.9.2
 BuildRequires:	%{?scl_prefix}libthrift-java
 # TODO
-BuildRequires:	%{?scl_prefix}antlr3
 BuildRequires:	%{?scl_prefix}cassandra-java-driver
 BuildRequires:	%{?scl_prefix}lz4-java
 BuildRequires:	%{?scl_prefix}snappy-java
@@ -99,7 +100,7 @@ BuildRequires:	%{?scl_prefix}ohc-core-j8
 BuildRequires:	%{?scl_prefix}hppc
 BuildRequires:	%{?scl_prefix}caffeine
 # the SCL version of the package depends on rh-maven33 collection
-%{?scl:Requires: %scl_require rh-maven33}
+#%{?scl:Requires: %%scl_require rh-maven33}
 
 # temporarly removed as it is optional
 # using hadoop-common instead of hadoop-core, no Cassandra original
