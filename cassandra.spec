@@ -4,10 +4,12 @@
 %global allocated_gid 143
 %global allocated_uid 143
 
+%global cqlsh_version 5.0.1
+
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
-Release:	1%{?dist}
-Summary:	OpenSource database Apache Cassandra
+Release:	2%{?dist}
+Summary:	OpenSource database for high-scale application
 # Apache (v2.0) BSD (3 clause):
 # ./src/java/org/apache/cassandra/utils/vint/VIntCoding.java
 License:	ASL 2.0 and BSD
@@ -45,9 +47,12 @@ Patch5:		%{pkg_name}-%{version}-slf4j.patch
 # https://github.com/apache/cassandra/commit/8f0d5a295d34972ef719574df4aa1b59bf9e8478
 Patch6:		%{pkg_name}-%{version}-remove-primitive.patch
 
+#BuildArchitectures:	noarch
+
 %{?scl:Requires: %scl_runtime}
 Requires(pre):	shadow-utils
-%{?systemd_requires}
+Requires:	%{?scl_prefix}sigar
+%{?systemd_ordering}
 BuildRequires:	systemd
 BuildRequires:	%{?scl_prefix_maven}maven-local
 BuildRequires:	%{?scl_prefix_java_common}ant
@@ -71,6 +76,8 @@ BuildRequires:	%{?scl_prefix}HdrHistogram
 BuildRequires:	%{?scl_prefix}sigar-java
 BuildRequires:	%{?scl_prefix}jackson
 BuildRequires:	%{?scl_prefix}antlr3-tool
+BuildRequires:	%{?scl_prefix}caffeine
+BuildRequires:	%{?scl_prefix}hppc
 # using high-scale-lib from stephenc, no Cassandra original
 #BuildRequires:	 mvn(com.boundary:high-scale-lib)
 BuildRequires:	%{?scl_prefix}high-scale-lib
@@ -97,8 +104,6 @@ BuildRequires:	%{?scl_prefix}lz4-java
 BuildRequires:	%{?scl_prefix}snappy-java
 BuildRequires:	%{?scl_prefix}ohc
 BuildRequires:	%{?scl_prefix}ohc-core-j8
-BuildRequires:	%{?scl_prefix}hppc
-BuildRequires:	%{?scl_prefix}caffeine
 # the SCL version of the package depends on rh-maven33 collection
 #%{?scl:Requires: %%scl_require rh-maven33}
 
@@ -112,11 +117,9 @@ BuildRequires:	%{?scl_prefix}caffeine
 Cassandra is a partitioned row store. Rows are organized into tables with
 a required primary key. Partitioning means that Cassandra can distribute your
 data across multiple machines in an application-transparent matter. Cassandra
-will automatically repartition as machines are added / removed from the cluster.
+will automatically re-partition as machines are added/removed from the cluster.
 Row store means that like relational databases, Cassandra organizes data by
 rows and columns. The Cassandra Query Language (CQL) is a close relative of SQL.
-Database Pure Java Driver. It was developed specifically as a lightweight
-JDBC connector for use with MySQL and MariaDB database servers.
 
 %package parent
 Summary:	Parent POM for %{pkg_name}
@@ -136,19 +139,18 @@ question based on a Thrift IDL file describing the service.
 %package clientutil
 Summary:	Client utilities for %{pkg_name}
 Requires:	%{pkg_name} = %{version}-%{release}
-Requires:	python-cassandra-driver
 
 %description clientutil
 Utilities usable by client for %{pkg_name}
 
 # source codes of cqlshlib are not python3 compatible, therefore using python2
 %package python2-cqlshlib
-Summary:	Commandline interface for %{name}
+Summary:	Commandline interface for %{pkg_name}
 BuildRequires:	python2-devel
 BuildRequires:	Cython
 Requires:	%{name} = %{version}-%{release}
-Requires:	python-cassandra-driver
-Provides:	cqlsh
+Requires:	python2-cassandra-driver
+Provides:	cqlsh = %{cqlsh_version}
 %{?python_provide:%python_provide python2-cqlshlib}
 
 %description python2-cqlshlib
@@ -190,11 +192,22 @@ find -name "*.bat" -print -delete
 find -name "*.pyc" -print -delete
 find -name "*py.class" -print -delete
 
+# copy pom files
+mkdir build
+cp -p %{SOURCE4} build/%{pkg_name}-%{version}.pom
+cp -p %{SOURCE5} build/%{pkg_name}-thrift-%{version}.pom
+cp -p %{SOURCE6} build/%{pkg_name}-clientutil-%{version}.pom
+cp -p %{SOURCE7} build/%{pkg_name}-%{version}-parent.pom
+
 # remove hadoop
 rm src/java/org/apache/cassandra/client/RingCache.java
 rm -r src/java/org/apache/cassandra/hadoop
 rm test/unit/org/apache/cassandra/client/TestRingCache.java
 rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
+# remove hadoop also from pom files
+%pom_remove_dep -r org.apache.hadoop: build/%{pkg_name}-%{version}.pom
+# remove shaded classifier in cassandra driver from pom files
+%pom_xpath_remove "pom:dependencies/pom:dependency/pom:classifier" build/%{pkg_name}-%{version}.pom
 
 # build jar repositories for dependencies
 build-jar-repository lib antlr3
@@ -278,13 +291,6 @@ build-jar-repository lib javax.inject
 # remove primitive patch
 %patch6 -p1
 
-# copy pom files
-mkdir build
-cp -p %{SOURCE4} build/%{pkg_name}-%{version}.pom
-cp -p %{SOURCE5} build/%{pkg_name}-thrift-%{version}.pom
-cp -p %{SOURCE6} build/%{pkg_name}-clientutil-%{version}.pom
-cp -p %{SOURCE7} build/%{pkg_name}-%{version}-parent.pom
-
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 # update dependencies that are not correct in the downloaded pom files
 %pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{name}-%{version}.pom
@@ -312,9 +318,9 @@ popd
 %install
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 %mvn_artifact build/%{pkg_name}-%{version}-parent.pom
-%mvn_artifact build/%{pkg_name}-%{version}.pom  build/%{pkg_name}-%{version}.jar
-%mvn_artifact build/%{pkg_name}-thrift-%{version}.pom  build/%{pkg_name}-thrift-%{version}.jar
-%mvn_artifact build/%{pkg_name}-clientutil-%{version}.pom  build/%{pkg_name}-clientutil-%{version}.jar
+%mvn_artifact build/%{pkg_name}-%{version}.pom build/%{pkg_name}-%{version}.jar
+%mvn_artifact build/%{pkg_name}-thrift-%{version}.pom build/%{pkg_name}-thrift-%{version}.jar
+%mvn_artifact build/%{pkg_name}-clientutil-%{version}.pom build/%{pkg_name}-clientutil-%{version}.jar
 %mvn_artifact org.apache.cassandra:%{pkg_name}-stress:%{version} build/tools/lib/%{pkg_name}-stress.jar
 
 %mvn_install -J build/javadoc/
@@ -332,12 +338,12 @@ mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
 install -p -D -m 644 "%{SOURCE1}"  %{buildroot}%{_sysconfdir}/logrotate.d/%{pkg_name}
 install -p -D -m 755 bin/%{pkg_name} %{buildroot}%{_bindir}/%{pkg_name}
-install -p -D -m 755 bin/%{pkg_name}.in.sh %{buildroot}%{_bindir}/%{pkg_name}.in.sh
-install -p -D -m 755 conf/%{pkg_name}-env.sh %{buildroot}%{_sysconfdir}/%{pkg_name}-env.sh
-install -p -D -m 644 conf/%{pkg_name}.yaml %{buildroot}%{_sysconfdir}/%{pkg_name}.yaml
-install -p -D -m 644 conf/jvm.options %{buildroot}%{_sysconfdir}/jvm.options
-install -p -D -m 644 conf/logback-tools.xml %{buildroot}%{_sysconfdir}/logback-tools.xml
-install -p -D -m 644 conf/logback.xml %{buildroot}%{_sysconfdir}/logback.xml
+install -p -D -m 755 bin/%{pkg_name}.in.sh %{buildroot}%{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
+install -p -D -m 755 conf/%{pkg_name}-env.sh %{buildroot}%{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
+install -p -D -m 644 conf/%{pkg_name}.yaml %{buildroot}%{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
+install -p -D -m 644 conf/jvm.options %{buildroot}%{_sysconfdir}/%{pkg_name}/jvm.options
+install -p -D -m 644 conf/logback-tools.xml %{buildroot}%{_sysconfdir}/%{pkg_name}/logback-tools.xml
+install -p -D -m 644 conf/logback.xml %{buildroot}%{_sysconfdir}/%{pkg_name}/logback.xml
 install -p -D -m 755 bin/cqlsh.py %{buildroot}%{_bindir}/cqlsh
 install -p -D -m 755 bin/nodetool %{buildroot}%{_bindir}/nodetool
 install -p -D -m 755 bin/sstableloader %{buildroot}%{_bindir}/sstableloader
@@ -384,14 +390,14 @@ exit 0
 %doc README.asc CHANGES.txt NEWS.txt
 %license LICENSE.txt NOTICE.txt
 %dir %attr(755, %{pkg_name}, root) %{_sharedstatedir}/%{pkg_name}
-%dir %attr(750, %{pkg_name}, root) %{_localstatedir}/log/%{pkg_name}
-%attr(755, root, root) %{_bindir}/%{pkg_name}
-%attr(755, root, root) %{_bindir}/%{pkg_name}.in.sh
-%config(noreplace) %{_sysconfdir}/%{pkg_name}-env.sh
-%config(noreplace) %{_sysconfdir}/%{pkg_name}.yaml
-%config(noreplace) %{_sysconfdir}/jvm.options
-%config(noreplace) %{_sysconfdir}/logback-tools.xml
-%config(noreplace) %{_sysconfdir}/logback.xml
+%dir %attr(755, %{pkg_name}, root) %{_localstatedir}/log/%{pkg_name}
+%{_bindir}/%{pkg_name}
+%{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
+%{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/jvm.options
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback-tools.xml
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback.xml
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
 %{_unitdir}/%{pkg_name}d.service
 
@@ -428,11 +434,14 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/%{pkg_name}-stress
 %attr(755, root, root) %{_bindir}/%{pkg_name}-stressd
-%attr(755, root, root) %{_bindir}/%{pkg_name}.in.sh
+%{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
 
 %files javadoc -f .mfiles-javadoc
 %license LICENSE.txt NOTICE.txt
 
 %changelog
+* Wed Jan 18 2017 Tomas Repik <trepik@redhat.com> - 3.9-2
+- fix paths so that one could run the server
+
 * Thu Dec 01 2016 Tomas Repik <trepik@redhat.com> - 3.9-1
 - initial package

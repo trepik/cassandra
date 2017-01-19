@@ -1,6 +1,17 @@
 diff -ur cassandra-cassandra-3.9/bin/cassandra cassandra-cassandra-3.9new/bin/cassandra
 --- cassandra-cassandra-3.9/bin/cassandra	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/bin/cassandra	2016-10-17 11:03:56.085746811 +0200
++++ cassandra-cassandra-3.9new/bin/cassandra	2017-01-19 09:56:18.434768566 +0100
+@@ -120,8 +120,8 @@
+     exit 1
+ fi
+ 
+-if [ -f "$CASSANDRA_CONF/cassandra-env.sh" ]; then
+-    . "$CASSANDRA_CONF/cassandra-env.sh"
++if [ -f "/usr/share/cassandra/cassandra-env.sh" ]; then
++    . "/usr/share/cassandra/cassandra-env.sh"
+ fi
+ 
+ # Special-case path variables.
 @@ -188,7 +188,7 @@
      props="$3"
      class="$4"
@@ -12,8 +23,13 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra cassandra-cassandra-3.9new/bin/ca
      if [ "x$pidpath" != "x" ]; then
 diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/bin/cassandra.in.sh
 --- cassandra-cassandra-3.9/bin/cassandra.in.sh	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/bin/cassandra.in.sh	2016-10-17 11:03:56.085746811 +0200
-@@ -14,63 +14,27 @@
++++ cassandra-cassandra-3.9new/bin/cassandra.in.sh	2017-01-19 08:20:05.664813737 +0100
+@@ -1,3 +1,4 @@
++#!/bin/bash
+ # Licensed to the Apache Software Foundation (ASF) under one
+ # or more contributor license agreements.  See the NOTICE file
+ # distributed with this work for additional information
+@@ -14,63 +15,52 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
  
@@ -24,7 +40,7 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/
  # The directory where Cassandra's configs live (required)
  if [ "x$CASSANDRA_CONF" = "x" ]; then
 -    CASSANDRA_CONF="$CASSANDRA_HOME/conf"
-+    CASSANDRA_CONF="/etc"
++    CASSANDRA_CONF="/etc/cassandra"
  fi
  
 -# This can be the path to a jar file, or a directory containing the 
@@ -40,7 +56,8 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/
 -
 -# JAVA_HOME can optionally be set here
 -#JAVA_HOME=/usr/local/jdk6
-+cassandra_storagedir="/var/lib/cassandra"
++#cassandra_storagedir="/var/lib/cassandra"
++cassandra_storagedir="$HOME/cassandra"
  
  # The java classpath (required)
 -CLASSPATH="$CASSANDRA_CONF:$cassandra_bin"
@@ -49,7 +66,7 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/
 -for jar in "$CASSANDRA_HOME"/lib/*.jar; do
 -    CLASSPATH="$CLASSPATH:$jar"
 -done
-+DEPS=( cassandra/cassandra-all cassandra/cassandra-thrift stringtemplate4 airline antlr3-runtime objectweb-asm/asm cassandra-java-driver/cassandra-driver-core commons-cli commons-codec commons-math3 commons-lang3 compress-lzf concurrent-trees concurrentlinkedhashmap-lru ecj guava high-scale-lib/high-scale-lib hppc jackson/jackson-core-asl jackson/jackson-mapper-asl jBCrypt jflex jna joda-time json_simple libthrift logback/logback-classic logback/logback-core lz4 metrics netty/netty-all ohc/ohc-core primitive metrics-reporter-config/reporter-config metrics-reporter-config/reporter-config-base sigar slf4j/api snakeyaml snappy-java snowball-java stream-lib disruptor-thrift-server javax.inject )
++DEPS=( cassandra/cassandra-all cassandra/cassandra-thrift stringtemplate4 airline antlr3-runtime objectweb-asm/asm cassandra-java-driver/cassandra-driver-core commons-cli commons-codec commons-math3 commons-lang3 compress-lzf concurrent-trees concurrentlinkedhashmap-lru ecj guava high-scale-lib/high-scale-lib hppc jackson/jackson-core-asl jackson/jackson-mapper-asl jBCrypt jflex jna joda-time json_simple libthrift logback/logback-classic logback/logback-core lz4 metrics netty/netty-all ohc/ohc-core metrics-reporter-config/reporter-config metrics-reporter-config/reporter-config-base sigar slf4j/api snakeyaml snappy-java snowball-java stream-lib disruptor-thrift-server javax.inject caffeine )
  
 -# JSR223 - collect all JSR223 engines' jars
 -for jsr223jar in "$CASSANDRA_HOME"/lib/jsr223/*/*.jar; do
@@ -81,12 +98,35 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/
 -    JAVA_AGENT="$JAVA_AGENT -javaagent:$CASSANDRA_HOME/lib/jamm-0.3.0.jar"
 +    JAVA_AGENT="$JAVA_AGENT -javaagent:`build-classpath jamm`"
  fi
--
+ 
 -# Added sigar-bin to the java.library.path CASSANDRA-7838
 -JAVA_OPTS="$JAVA_OPTS:-Djava.library.path=$CASSANDRA_HOME/lib/sigar-bin"
++java_ver_output=`"${JAVA:-java}" -version 2>&1`
++jvm=`echo "$java_ver_output" | grep -A 1 'version' | awk 'NR==2 {print $1}'`
++case "$jvm" in
++    OpenJDK)
++        # this will be "64-Bit" or "32-Bit"
++        JVM_ARCH=`echo "$java_ver_output" | awk 'NR==3 {print $2}'`
++        ;;
++    "Java(TM)")
++        # this will be "64-Bit" or "32-Bit"
++        JVM_ARCH=`echo "$java_ver_output" | awk 'NR==3 {print $3}'`
++        ;;
++    *)
++        # Help fill in other JVM values
++        JVM_ARCH=unknown
++        ;;
++esac
++
++# Added libsigar.so to the java.library.path CASSANDRA-7838
++if [ "$JVM_ARCH" = "64-Bit" ]; then
++    JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib64:/usr/lib64/sigar"
++else
++    JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib:/usr/lib/sigar"
++fi
 diff -ur cassandra-cassandra-3.9/bin/cqlsh.py cassandra-cassandra-3.9new/bin/cqlsh.py
 --- cassandra-cassandra-3.9/bin/cqlsh.py	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/bin/cqlsh.py	2016-10-17 11:03:56.086746819 +0200
++++ cassandra-cassandra-3.9new/bin/cqlsh.py	2017-01-03 12:24:13.745199335 +0100
 @@ -1,4 +1,4 @@
 -#!/bin/sh
 +#!/usr/bin/python
@@ -114,8 +154,41 @@ diff -ur cassandra-cassandra-3.9/bin/cqlsh.py cassandra-cassandra-3.9new/bin/cql
  import cmd
 diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9new/conf/cassandra-env.sh
 --- cassandra-cassandra-3.9/conf/cassandra-env.sh	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/conf/cassandra-env.sh	2016-10-17 11:03:56.086746819 +0200
-@@ -121,8 +121,8 @@
++++ cassandra-cassandra-3.9new/conf/cassandra-env.sh	2017-01-19 08:20:57.977239726 +0100
+@@ -1,3 +1,4 @@
++#!/bin/bash
+ # Licensed to the Apache Software Foundation (ASF) under one
+ # or more contributor license agreements.  See the NOTICE file
+ # distributed with this work for additional information
+@@ -88,21 +89,17 @@
+ 
+ # Determine the sort of JVM we'll be running on.
+ java_ver_output=`"${JAVA:-java}" -version 2>&1`
+-jvmver=`echo "$java_ver_output" | grep '[openjdk|java] version' | awk -F'"' 'NR==1 {print $2}' | cut -d\- -f1`
+-JVM_VERSION=${jvmver%_*}
+-JVM_PATCH_VERSION=${jvmver#*_}
++jvmver=`echo "$java_ver_output" | grep '[openjdk|java] version' | awk -F'"' 'NR==1 {print $2}'`
++tmp=(${jvmver//_/ })
++JVM_VERSION="${tmp[0]}"
++JVM_PATCH_VERSION="${tmp[1]}"
+ 
+-if [ "$JVM_VERSION" \< "1.8" ] ; then
++if [ "$JVM_VERSION" \< "1.8" ] || [ "$JVM_PATCH_VERSION" -lt 40 ] ; then
+     echo "Cassandra 3.0 and later require Java 8u40 or later."
+     exit 1;
+ fi
+ 
+-if [ "$JVM_VERSION" \< "1.8" ] && [ "$JVM_PATCH_VERSION" -lt 40 ] ; then
+-    echo "Cassandra 3.0 and later require Java 8u40 or later."
+-    exit 1;
+-fi
+-
+-jvm=`echo "$java_ver_output" | grep -A 1 'java version' | awk 'NR==2 {print $1}'`
++jvm=`echo "$java_ver_output" | grep -A 1 'version' | awk 'NR==2 {print $1}'`
+ case "$jvm" in
+     OpenJDK)
+         JVM_VENDOR=OpenJDK
+@@ -121,8 +118,8 @@
          ;;
  esac
  
@@ -126,7 +199,7 @@ diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9ne
  
  # Here we create the arguments that will get passed to the jvm when
  # starting cassandra.
-@@ -207,7 +207,7 @@
+@@ -207,7 +204,7 @@
  JVM_OPTS="$JVM_OPTS -XX:CompileCommandFile=$CASSANDRA_CONF/hotspot_compiler"
  
  # add the jamm javaagent
@@ -135,15 +208,15 @@ diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9ne
  
  # set jvm HeapDumpPath with CASSANDRA_HEAPDUMP_DIR
  if [ "x$CASSANDRA_HEAPDUMP_DIR" != "x" ]; then
-@@ -288,7 +288,12 @@
+@@ -288,7 +285,12 @@
  # Cassandra uses SIGAR to capture OS metrics CASSANDRA-7838
  # for SIGAR we have to set the java.library.path
  # to the location of the native libraries.
 -JVM_OPTS="$JVM_OPTS -Djava.library.path=$CASSANDRA_HOME/lib/sigar-bin"
 +if [ "$JVM_ARCH" = "64-Bit" ]; then
-+    JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib64/sigar"
++    JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib64:/usr/lib64/sigar"
 +else
-+    JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib/sigar"
++    JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib:/usr/lib/sigar"
 +fi
 +
  
@@ -151,7 +224,7 @@ diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9ne
  JVM_OPTS="$JVM_OPTS $MX4J_PORT"
 diff -ur cassandra-cassandra-3.9/tools/bin/cassandra-stress cassandra-cassandra-3.9new/tools/bin/cassandra-stress
 --- cassandra-cassandra-3.9/tools/bin/cassandra-stress	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/tools/bin/cassandra-stress	2016-10-17 11:03:56.086746819 +0200
++++ cassandra-cassandra-3.9new/tools/bin/cassandra-stress	2017-01-03 12:24:13.745199335 +0100
 @@ -49,6 +49,8 @@
      exit 1
  fi
@@ -163,7 +236,7 @@ diff -ur cassandra-cassandra-3.9/tools/bin/cassandra-stress cassandra-cassandra-
          -Dlogback.configurationFile=logback-tools.xml \
 diff -ur cassandra-cassandra-3.9/tools/bin/cassandra-stressd cassandra-cassandra-3.9new/tools/bin/cassandra-stressd
 --- cassandra-cassandra-3.9/tools/bin/cassandra-stressd	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/tools/bin/cassandra-stressd	2016-10-17 11:03:56.086746819 +0200
++++ cassandra-cassandra-3.9new/tools/bin/cassandra-stressd	2017-01-03 12:24:13.745199335 +0100
 @@ -50,6 +50,8 @@
      exit 1
  fi
