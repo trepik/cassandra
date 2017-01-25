@@ -1,14 +1,21 @@
-diff -ur cassandra-cassandra-3.9/bin/cassandra cassandra-cassandra-3.9new/bin/cassandra
---- cassandra-cassandra-3.9/bin/cassandra	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/bin/cassandra	2017-01-19 09:56:18.434768566 +0100
-@@ -120,8 +120,8 @@
+diff -urN cassandra-3.9/bin/cassandra cassandra-3.9new/bin/cassandra
+--- cassandra-3.9/bin/cassandra	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-3.9new/bin/cassandra	2017-01-26 16:47:55.552170907 +0100
+@@ -115,13 +115,13 @@
+     NUMACTL=""
+ fi
+ 
+-if [ -z "$CASSANDRA_CONF" -o -z "$CLASSPATH" ]; then
+-    echo "You must set the CASSANDRA_CONF and CLASSPATH vars" >&2
++if [ -z "$CASSANDRA_CONF" -o -z "$CLASSPATH" -o -z "$CASSANDRA_HOME" ]; then
++    echo "You must set the CASSANDRA_CONF, CASSANDRA_HOME and CLASSPATH vars" >&2
      exit 1
  fi
  
 -if [ -f "$CASSANDRA_CONF/cassandra-env.sh" ]; then
 -    . "$CASSANDRA_CONF/cassandra-env.sh"
-+if [ -f "/usr/share/cassandra/cassandra-env.sh" ]; then
-+    . "/usr/share/cassandra/cassandra-env.sh"
++if [ -f "/usr/share/$CASSANDRA_HOME/cassandra-env.sh" ]; then
++    . "/usr/share/$CASSANDRA_HOME/cassandra-env.sh"
  fi
  
  # Special-case path variables.
@@ -17,30 +24,30 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra cassandra-cassandra-3.9new/bin/ca
      class="$4"
      cassandra_parms="-Dlogback.configurationFile=logback.xml"
 -    cassandra_parms="$cassandra_parms -Dcassandra.logdir=$CASSANDRA_HOME/logs"
-+    cassandra_parms="$cassandra_parms -Dcassandra.logdir=/var/log/cassandra"
++    cassandra_parms="$cassandra_parms -Dcassandra.logdir=/var/log/$CASSANDRA_HOME"
      cassandra_parms="$cassandra_parms -Dcassandra.storagedir=$cassandra_storagedir"
  
      if [ "x$pidpath" != "x" ]; then
-diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/bin/cassandra.in.sh
---- cassandra-cassandra-3.9/bin/cassandra.in.sh	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/bin/cassandra.in.sh	2017-01-19 08:20:05.664813737 +0100
+diff -urN cassandra-3.9/bin/cassandra.in.sh cassandra-3.9new/bin/cassandra.in.sh
+--- cassandra-3.9/bin/cassandra.in.sh	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-3.9new/bin/cassandra.in.sh	2017-01-26 16:52:30.471400690 +0100
 @@ -1,3 +1,4 @@
 +#!/bin/bash
  # Licensed to the Apache Software Foundation (ASF) under one
  # or more contributor license agreements.  See the NOTICE file
  # distributed with this work for additional information
-@@ -14,63 +15,52 @@
- # See the License for the specific language governing permissions and
+@@ -15,62 +16,54 @@
  # limitations under the License.
  
--if [ "x$CASSANDRA_HOME" = "x" ]; then
+ if [ "x$CASSANDRA_HOME" = "x" ]; then
 -    CASSANDRA_HOME="`dirname "$0"`/.."
--fi
--
++    CASSANDRA_HOME="cassandra"
+ fi
+ 
  # The directory where Cassandra's configs live (required)
  if [ "x$CASSANDRA_CONF" = "x" ]; then
 -    CASSANDRA_CONF="$CASSANDRA_HOME/conf"
-+    CASSANDRA_CONF="/etc/cassandra"
++    CASSANDRA_CONF="/etc/$CASSANDRA_HOME"
  fi
  
 -# This can be the path to a jar file, or a directory containing the 
@@ -56,17 +63,16 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/
 -
 -# JAVA_HOME can optionally be set here
 -#JAVA_HOME=/usr/local/jdk6
-+#cassandra_storagedir="/var/lib/cassandra"
-+cassandra_storagedir="$HOME/cassandra"
++cassandra_storagedir="/var/lib/$CASSANDRA_HOME/data"
  
  # The java classpath (required)
 -CLASSPATH="$CASSANDRA_CONF:$cassandra_bin"
-+CLASSPATH="$CASSANDRA_CONF:`build-classpath cassandra/cassandra-all`"
++CLASSPATH="$CASSANDRA_CONF"
  
 -for jar in "$CASSANDRA_HOME"/lib/*.jar; do
 -    CLASSPATH="$CLASSPATH:$jar"
 -done
-+DEPS=( cassandra/cassandra-all cassandra/cassandra-thrift stringtemplate4 airline antlr3-runtime objectweb-asm/asm cassandra-java-driver/cassandra-driver-core commons-cli commons-codec commons-math3 commons-lang3 compress-lzf concurrent-trees concurrentlinkedhashmap-lru ecj guava high-scale-lib/high-scale-lib hppc jackson/jackson-core-asl jackson/jackson-mapper-asl jBCrypt jflex jna joda-time json_simple libthrift logback/logback-classic logback/logback-core lz4 metrics netty/netty-all ohc/ohc-core metrics-reporter-config/reporter-config metrics-reporter-config/reporter-config-base sigar slf4j/api snakeyaml snappy-java snowball-java stream-lib disruptor-thrift-server javax.inject caffeine )
++DEPS=( cassandra/cassandra-all metrics slf4j/api guava snakeyaml commons-codec jackson/jackson-mapper-asl jackson/jackson-core-asl netty/netty-all lz4 logback/logback-classic logback/logback-core jna sigar high-scale-lib/high-scale-lib antlr3-runtime concurrentlinkedhashmap-lru commons-lang3 json_simple stream-lib caffeine cassandra/cassandra-thrift libthrift snappy-java jBCrypt )
  
 -# JSR223 - collect all JSR223 engines' jars
 -for jsr223jar in "$CASSANDRA_HOME"/lib/jsr223/*/*.jar; do
@@ -124,9 +130,9 @@ diff -ur cassandra-cassandra-3.9/bin/cassandra.in.sh cassandra-cassandra-3.9new/
 +else
 +    JVM_OPTS="$JVM_OPTS -Djava.library.path=/usr/lib:/usr/lib/sigar"
 +fi
-diff -ur cassandra-cassandra-3.9/bin/cqlsh.py cassandra-cassandra-3.9new/bin/cqlsh.py
---- cassandra-cassandra-3.9/bin/cqlsh.py	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/bin/cqlsh.py	2017-01-03 12:24:13.745199335 +0100
+diff -urN cassandra-3.9/bin/cqlsh.py cassandra-3.9new/bin/cqlsh.py
+--- cassandra-3.9/bin/cqlsh.py	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-3.9new/bin/cqlsh.py	2017-01-25 14:27:45.843304664 +0100
 @@ -1,4 +1,4 @@
 -#!/bin/sh
 +#!/usr/bin/python
@@ -152,9 +158,74 @@ diff -ur cassandra-cassandra-3.9/bin/cqlsh.py cassandra-cassandra-3.9new/bin/cql
  from __future__ import with_statement
  
  import cmd
-diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9new/conf/cassandra-env.sh
---- cassandra-cassandra-3.9/conf/cassandra-env.sh	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/conf/cassandra-env.sh	2017-01-19 08:20:57.977239726 +0100
+diff -urN cassandra-3.9/bin/nodetool cassandra-3.9new/bin/nodetool
+--- cassandra-3.9/bin/nodetool	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-3.9new/bin/nodetool	2017-01-26 16:47:03.016744809 +0100
+@@ -50,15 +50,15 @@
+     exit 1
+ fi
+ 
+-if [ -z "$CASSANDRA_CONF" -o -z "$CLASSPATH" ]; then
+-    echo "You must set the CASSANDRA_CONF and CLASSPATH vars" >&2
++if [ -z "$CASSANDRA_CONF" -o -z "$CLASSPATH" -o -z "$CASSANDRA_HOME" ]; then
++    echo "You must set the CASSANDRA_CONF, $CASSANDRA_HOME and CLASSPATH vars" >&2
+     exit 1
+ fi
+ 
+ # Run cassandra-env.sh to pick up JMX_PORT
+-if [ -f "$CASSANDRA_CONF/cassandra-env.sh" ]; then
++if [ -f "/usr/share/$CASSANDRA_HOME/cassandra-env.sh" ]; then
+     JVM_OPTS_SAVE=$JVM_OPTS
+-    . "$CASSANDRA_CONF/cassandra-env.sh"
++    . "/usr/share/$CASSANDRA_HOME/cassandra-env.sh"
+     JVM_OPTS=$JVM_OPTS_SAVE
+ fi
+ 
+diff -urN cassandra-3.9/bin/nodetool.in.sh cassandra-3.9new/bin/nodetool.in.sh
+--- cassandra-3.9/bin/nodetool.in.sh	1970-01-01 01:00:00.000000000 +0100
++++ cassandra-3.9new/bin/nodetool.in.sh	2017-01-26 16:43:54.866218781 +0100
+@@ -0,0 +1,38 @@
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++if [ "x$CASSANDRA_HOME" = "x" ]; then
++    CASSANDRA_HOME="cassandra"
++fi
++
++# The directory where Cassandra's configs live (required)
++if [ "x$CASSANDRA_CONF" = "x" ]; then
++    CASSANDRA_CONF="/etc/$CASSANDRA_HOME"
++fi
++
++# the default location for commitlogs, sstables, and saved caches
++# if not set in cassandra.yaml
++cassandra_storagedir="/var/lib/$CASSANDRA_HOME/data"
++
++# The java classpath (required)
++CLASSPATH="$CASSANDRA_CONF"
++
++DEPS=( airline cassandra/cassandra-all guava javax.inject slf4j/api jackson/jackson-mapper-asl jackson/jackson-core-asl logback/logback-classic logback/logback-core commons-lang3 high-scale-lib/high-scale-lib antlr3-runtime metrics concurrentlinkedhashmap-lru snakeyaml commons-codec )
++
++for dep in "${DEPS[@]}"; do
++    CLASSPATH="$CLASSPATH:`build-classpath $dep`"
++done
++
+diff -urN cassandra-3.9/conf/cassandra-env.sh cassandra-3.9new/conf/cassandra-env.sh
+--- cassandra-3.9/conf/cassandra-env.sh	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-3.9new/conf/cassandra-env.sh	2017-01-25 14:28:12.372505772 +0100
 @@ -1,3 +1,4 @@
 +#!/bin/bash
  # Licensed to the Apache Software Foundation (ASF) under one
@@ -188,14 +259,12 @@ diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9ne
  case "$jvm" in
      OpenJDK)
          JVM_VENDOR=OpenJDK
-@@ -121,8 +118,8 @@
-         ;;
+@@ -122,7 +119,7 @@
  esac
  
--#GC log path has to be defined here because it needs to access CASSANDRA_HOME
+ #GC log path has to be defined here because it needs to access CASSANDRA_HOME
 -JVM_OPTS="$JVM_OPTS -Xloggc:${CASSANDRA_HOME}/logs/gc.log"
-+#GC log path
-+JVM_OPTS="$JVM_OPTS -Xloggc:/var/log/cassandra/gc.log"
++JVM_OPTS="$JVM_OPTS -Xloggc:/var/log/$CASSANDRA_HOME/gc.log"
  
  # Here we create the arguments that will get passed to the jvm when
  # starting cassandra.
@@ -208,6 +277,15 @@ diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9ne
  
  # set jvm HeapDumpPath with CASSANDRA_HEAPDUMP_DIR
  if [ "x$CASSANDRA_HEAPDUMP_DIR" != "x" ]; then
+@@ -271,7 +268,7 @@
+ ## which delegates to the IAuthenticator configured in cassandra.yaml. See the sample JAAS configuration
+ ## file cassandra-jaas.config
+ #JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.remote.login.config=CassandraLogin"
+-#JVM_OPTS="$JVM_OPTS -Djava.security.auth.login.config=$CASSANDRA_HOME/conf/cassandra-jaas.config"
++#JVM_OPTS="$JVM_OPTS -Djava.security.auth.login.config=/etc/$CASSANDRA_HOME/cassandra-jaas.config"
+ 
+ ## Cassandra also ships with a helper for delegating JMX authz calls to the configured IAuthorizer,
+ ## uncomment this to use it. Requires one of the two authentication options to be enabled
 @@ -288,7 +285,12 @@
  # Cassandra uses SIGAR to capture OS metrics CASSANDRA-7838
  # for SIGAR we have to set the java.library.path
@@ -222,9 +300,9 @@ diff -ur cassandra-cassandra-3.9/conf/cassandra-env.sh cassandra-cassandra-3.9ne
  
  JVM_OPTS="$JVM_OPTS $MX4J_ADDRESS"
  JVM_OPTS="$JVM_OPTS $MX4J_PORT"
-diff -ur cassandra-cassandra-3.9/tools/bin/cassandra-stress cassandra-cassandra-3.9new/tools/bin/cassandra-stress
---- cassandra-cassandra-3.9/tools/bin/cassandra-stress	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/tools/bin/cassandra-stress	2017-01-03 12:24:13.745199335 +0100
+diff -urN cassandra-3.9/tools/bin/cassandra-stress cassandra-3.9new/tools/bin/cassandra-stress
+--- cassandra-3.9/tools/bin/cassandra-stress	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-3.9new/tools/bin/cassandra-stress	2017-01-25 14:33:56.608115288 +0100
 @@ -49,6 +49,8 @@
      exit 1
  fi
@@ -234,9 +312,9 @@ diff -ur cassandra-cassandra-3.9/tools/bin/cassandra-stress cassandra-cassandra-
  "$JAVA" -server -ea -cp "$CLASSPATH" $JVM_OPTS \
          -Dcassandra.storagedir="$cassandra_storagedir" \
          -Dlogback.configurationFile=logback-tools.xml \
-diff -ur cassandra-cassandra-3.9/tools/bin/cassandra-stressd cassandra-cassandra-3.9new/tools/bin/cassandra-stressd
---- cassandra-cassandra-3.9/tools/bin/cassandra-stressd	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-cassandra-3.9new/tools/bin/cassandra-stressd	2017-01-03 12:24:13.745199335 +0100
+diff -urN cassandra-3.9/tools/bin/cassandra-stressd cassandra-3.9new/tools/bin/cassandra-stressd
+--- cassandra-3.9/tools/bin/cassandra-stressd	2016-09-26 16:02:27.000000000 +0200
++++ cassandra-3.9new/tools/bin/cassandra-stressd	2017-01-25 14:34:00.190142443 +0100
 @@ -50,6 +50,8 @@
      exit 1
  fi

@@ -6,7 +6,7 @@ After=syslog.target network.target
 [Service]
 Type=forking
 User=cassandra
-EnvironmentFile=/etc/sysconfig/cassandra
+EnvironmentFile=-/etc/sysconfig/cassandra
 ExecStart=/usr/bin/cassandra $OPTIONS
 
 [Install]

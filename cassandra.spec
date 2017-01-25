@@ -1,15 +1,18 @@
 %{?scl:%scl_package cassandra}
 %{!?scl:%global pkg_name %{name}}
 
-%global allocated_gid 143
-%global allocated_uid 143
+# fedora reserved UID and GID for cassandra
+%global gid_uid 143
+
+%{!?thrift:%global thrift 0}
+%{!?stress:%global stress 0}
 
 %global cqlsh_version 5.0.1
 
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
-Release:	2%{?dist}
-Summary:	OpenSource database for high-scale application
+Release:	3%{?dist}
+Summary:	Client utilities for %{pkg_name}
 # Apache (v2.0) BSD (3 clause):
 # ./src/java/org/apache/cassandra/utils/vint/VIntCoding.java
 License:	ASL 2.0 and BSD
@@ -19,8 +22,7 @@ Source1:	%{pkg_name}.logrotate
 Source2:	%{pkg_name}d.service
 Source3:	%{pkg_name}-tmpfile
 # pom files are not generated but used are the ones from mavencentral
-# because of orphaned mavent-ant-task package doing the work in this case
-# failed koji build: http://koji.fedoraproject.org/koji/taskinfo?taskID=15542960
+# because of orphaned maven-ant-task package doing the work in this case
 Source4:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-all/%{version}/%{pkg_name}-all-%{version}.pom
 Source5:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-thrift/%{version}/%{pkg_name}-thrift-%{version}.pom
 Source6:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-clientutil/%{version}/%{pkg_name}-clientutil-%{version}.pom
@@ -47,13 +49,22 @@ Patch5:		%{pkg_name}-%{version}-slf4j.patch
 # https://github.com/apache/cassandra/commit/8f0d5a295d34972ef719574df4aa1b59bf9e8478
 Patch6:		%{pkg_name}-%{version}-remove-primitive.patch
 
+# TODO
 #BuildArchitectures:	noarch
 
-%{?scl:Requires: %scl_runtime}
-Requires(pre):	shadow-utils
-Requires:	%{?scl_prefix}sigar
-%{?systemd_ordering}
-BuildRequires:	systemd
+Requires:	%{pkg_name}-python2-cqlshlib = %{version}-%{release}
+Requires:	%{pkg_name}-java-libs = %{version}-%{release}
+Provides:	cqlsh = %{cqlsh_version}
+
+%description
+This package contains all client utilities for %{pkg_name}. These are:
+1. Commandline client used to communicate with %{pkg_name} server called cqlsh.
+2. Command line interface for managing cluster called nodetool.
+3. Tools for using, upgrading, and changing %{pkg_name} SSTables.
+
+%package java-libs
+Summary:	Java libraries for %{pkg_name}
+
 BuildRequires:	%{?scl_prefix_maven}maven-local
 BuildRequires:	%{?scl_prefix_java_common}ant
 BuildRequires:	%{?scl_prefix_java_common}ecj
@@ -105,7 +116,7 @@ BuildRequires:	%{?scl_prefix}snappy-java
 BuildRequires:	%{?scl_prefix}ohc
 BuildRequires:	%{?scl_prefix}ohc-core-j8
 # the SCL version of the package depends on rh-maven33 collection
-#%{?scl:Requires: %%scl_require rh-maven33}
+%{?scl:Requires: %%scl_require rh-maven33}
 
 # temporarly removed as it is optional
 # using hadoop-common instead of hadoop-core, no Cassandra original
@@ -113,7 +124,21 @@ BuildRequires:	%{?scl_prefix}ohc-core-j8
 #BuildRequires:	hadoop-common
 #BuildRequires:	hadoop-mapreduce
 
-%description
+%description java-libs
+All the classes required by cassandra server, nodetool, sstable tools
+and stress tools.
+
+%package server
+Summary:	OpenSource database server for high-scale application
+
+%{?scl:Requires: %scl_runtime}
+Requires(pre):	shadow-utils
+Requires:	%{?scl_prefix}sigar
+Requires:	%{pkg_name}-java-libs = %{version}-%{release}
+%{?systemd_ordering}
+BuildRequires:	systemd
+
+%description server
 Cassandra is a partitioned row store. Rows are organized into tables with
 a required primary key. Partitioning means that Cassandra can distribute your
 data across multiple machines in an application-transparent matter. Cassandra
@@ -127,6 +152,7 @@ Summary:	Parent POM for %{pkg_name}
 %description parent
 Parent POM for %{pkg_name}.
 
+%if %thrift
 %package thrift
 Summary:	Thrift for %{pkg_name}
 Requires:	%{pkg_name} = %{version}-%{release}
@@ -135,34 +161,29 @@ Requires:	%{pkg_name} = %{version}-%{release}
 Allows portable (across programming languages) access to the database. Thrift
 accomplishes this by generated source code for the programming language in
 question based on a Thrift IDL file describing the service.
-
-%package clientutil
-Summary:	Client utilities for %{pkg_name}
-Requires:	%{pkg_name} = %{version}-%{release}
-
-%description clientutil
-Utilities usable by client for %{pkg_name}
+%endif
 
 # source codes of cqlshlib are not python3 compatible, therefore using python2
 %package python2-cqlshlib
-Summary:	Commandline interface for %{pkg_name}
+Summary:	Python cqlsh library for %{pkg_name}
 BuildRequires:	python2-devel
 BuildRequires:	Cython
-Requires:	%{name} = %{version}-%{release}
 Requires:	python2-cassandra-driver
-Provides:	cqlsh = %{cqlsh_version}
+# optional timestamps in different timezones dependency
+Requires:	pytz
 %{?python_provide:%python_provide python2-cqlshlib}
 
 %description python2-cqlshlib
-Commandline client used to communicate with %{pkg_name} server.
+A python library required by the commandline client used to communicate with 
+%{pkg_name} server.
 
+%if %stress
 %package stress
 Summary:	Stress testing utility for %{pkg_name}
-Requires:	%{pkg_name} = %{version}-%{release}
 
 %description stress
-The cassandra-stress tool is a Java-based stress testing utility
-for benchmarking and load testing a Cassandra cluster.
+A Java-based stress testing utility for basic benchmarking and load testing a %{pkg_name} cluster.
+%endif
 
 %package javadoc
 Summary:	Javadoc for %{pkg_name}
@@ -206,8 +227,22 @@ rm test/unit/org/apache/cassandra/client/TestRingCache.java
 rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
 # remove hadoop also from pom files
 %pom_remove_dep -r org.apache.hadoop: build/%{pkg_name}-%{version}.pom
+
 # remove shaded classifier in cassandra driver from pom files
 %pom_xpath_remove "pom:dependencies/pom:dependency/pom:classifier" build/%{pkg_name}-%{version}.pom
+
+# TRY remove cassandra-java-driver
+#%pom_remove_dep -r com.datastax.cassandra:cassandra-driver-core build/%%{pkg_name}-%%{version}.pom
+#rm src/java/org/apache/cassandra/cql3/functions/UDFunction.java
+#rm src/java/org/apache/cassandra/cql3/functions/UDFContext.java
+#rm src/java/org/apache/cassandra/cql3/functions/JavaBasedUDFunction.java
+#rm src/java/org/apache/cassandra/cql3/functions/JavaUDF.java
+#rm src/java/org/apache/cassandra/cql3/functions/UDFContextImpl.java
+#rm src/java/org/apache/cassandra/cql3/functions/UDHelper.java
+#rm src/java/org/apache/cassandra/io/sstable/CQLSSTableWriter.java
+#rm src/java/org/apache/cassandra/tools/BulkLoader.java
+#rm src/java/org/apache/cassandra/tools/LoaderOptions.java
+#rm src/java/org/apache/cassandra/utils/NativeSSTableLoaderClient.java
 
 # build jar repositories for dependencies
 build-jar-repository lib antlr3
@@ -292,17 +327,21 @@ build-jar-repository lib javax.inject
 %patch6 -p1
 
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
-# update dependencies that are not correct in the downloaded pom files
-%pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{name}-%{version}.pom
-%pom_change_dep com.github.rholder:snowball-stemmer org.tartarus:snowball build/%{name}-thrift-%{version}.pom
+# update dependencies in the downloaded pom files to those being actually used
+%pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{pkg_name}-%{version}.pom
+%pom_change_dep com.github.rholder:snowball-stemmer org.tartarus:snowball build/%{pkg_name}-thrift-%{version}.pom
 
 # remove primitve as a dependency
 %pom_remove_dep -r :primitive build/%{pkg_name}-thrift-%{version}.pom
 
 %mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" parent
+%if %thrift
 %mvn_package ":%{pkg_name}-thrift" thrift
-%mvn_package ":%{pkg_name}-clientutil" clientutil
+%endif
+%mvn_package ":%{pkg_name}-clientutil" client
+%if %stress
 %mvn_package ":%{pkg_name}-stress" stress
+%endif
 %{?scl:EOF}
 
 %build
@@ -321,7 +360,9 @@ popd
 %mvn_artifact build/%{pkg_name}-%{version}.pom build/%{pkg_name}-%{version}.jar
 %mvn_artifact build/%{pkg_name}-thrift-%{version}.pom build/%{pkg_name}-thrift-%{version}.jar
 %mvn_artifact build/%{pkg_name}-clientutil-%{version}.pom build/%{pkg_name}-clientutil-%{version}.jar
-%mvn_artifact org.apache.cassandra:%{pkg_name}-stress:%{version} build/tools/lib/%{pkg_name}-stress.jar
+%if %stress
+%mvn_artifact org.apache.%{pkg_name}:%{pkg_name}-stress:%{version} build/tools/lib/%{pkg_name}-stress.jar
+%endif
 
 %mvn_install -J build/javadoc/
 %{?scl:EOF}
@@ -331,19 +372,22 @@ pushd pylib
 %py2_install
 popd
 
-# create data dir
-mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
-
-# logs directory plus files
+# create data and log dirs
+mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}/data
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
+
+# install files
 install -p -D -m 644 "%{SOURCE1}"  %{buildroot}%{_sysconfdir}/logrotate.d/%{pkg_name}
 install -p -D -m 755 bin/%{pkg_name} %{buildroot}%{_bindir}/%{pkg_name}
 install -p -D -m 755 bin/%{pkg_name}.in.sh %{buildroot}%{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
 install -p -D -m 755 conf/%{pkg_name}-env.sh %{buildroot}%{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
 install -p -D -m 644 conf/%{pkg_name}.yaml %{buildroot}%{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
+install -p -D -m 644 conf/%{pkg_name}-jaas.config %{buildroot}%{_sysconfdir}/%{pkg_name}/%{pkg_name}-jaas.config
+install -p -D -m 644 conf/%{pkg_name}-topology.properties %{buildroot}%{_sysconfdir}/%{pkg_name}/%{pkg_name}-topology.properties
 install -p -D -m 644 conf/jvm.options %{buildroot}%{_sysconfdir}/%{pkg_name}/jvm.options
 install -p -D -m 644 conf/logback-tools.xml %{buildroot}%{_sysconfdir}/%{pkg_name}/logback-tools.xml
 install -p -D -m 644 conf/logback.xml %{buildroot}%{_sysconfdir}/%{pkg_name}/logback.xml
+install -p -D -m 644 conf/metrics-reporter-config-sample.yaml %{buildroot}%{_sysconfdir}/%{pkg_name}/metrics-reporter-config-sample.yaml
 install -p -D -m 755 bin/cqlsh.py %{buildroot}%{_bindir}/cqlsh
 install -p -D -m 755 bin/nodetool %{buildroot}%{_bindir}/nodetool
 install -p -D -m 755 bin/sstableloader %{buildroot}%{_bindir}/sstableloader
@@ -358,56 +402,38 @@ install -p -D -m 755 tools/bin/sstablemetadata %{buildroot}%{_bindir}/sstablemet
 install -p -D -m 755 tools/bin/sstableofflinerelevel %{buildroot}%{_bindir}/sstableofflinerelevel
 install -p -D -m 755 tools/bin/sstablerepairedset %{buildroot}%{_bindir}/sstablerepairedset
 install -p -D -m 755 tools/bin/sstablesplit %{buildroot}%{_bindir}/sstablesplit
+%if %stress
 install -p -D -m 755 tools/bin/%{pkg_name}-stress %{buildroot}%{_bindir}/%{pkg_name}-stress
 install -p -D -m 755 tools/bin/%{pkg_name}-stressd %{buildroot}%{_bindir}/%{pkg_name}-stressd
+%endif
 
 # install cassandrad.service
 install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{_unitdir}/%{pkg_name}d.service
 
-%pre
-getent group %{pkg_name} >/dev/null || groupadd -f -g %{allocated_gid} -r %{pkg_name}
+%pre server
+getent group %{pkg_name} >/dev/null || groupadd -f -g %{gid_uid} -r %{pkg_name}
 if ! getent passwd %{pkg_name} >/dev/null ; then
-  if ! getrnt passwd %{allocated_uid} >/dev/null ; then
-    useradd -r -u %{allocated_uid} -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name} \
+  if ! getrnt passwd %{gid_uid} >/dev/null ; then
+    useradd -r -u %{gid_uid} -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name}/data \
       -s /sbin/nologin -c "Cassandra Database Server" %{pkg_name}
   else
-    useradd -r -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name} -s /sbin/nologin \
+    useradd -r -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name}/data -s /sbin/nologin \
       -c "Cassandra Database Server" %{pkg_name}
   fi
 fi
 exit 0
 
-%post
+%post server
 %systemd_post %{pkg_name}d.service
 
-%preun
+%preun server
 %systemd_preun %{pkg_name}d.service
 
-%postun
+%postun server
 %systemd_postun_with_restart %{pkg_name}d.service
 
-%files -f .mfiles
-%doc README.asc CHANGES.txt NEWS.txt
-%license LICENSE.txt NOTICE.txt
-%dir %attr(755, %{pkg_name}, root) %{_sharedstatedir}/%{pkg_name}
-%dir %attr(755, %{pkg_name}, root) %{_localstatedir}/log/%{pkg_name}
-%{_bindir}/%{pkg_name}
-%{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
-%{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/jvm.options
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback-tools.xml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback.xml
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
-%{_unitdir}/%{pkg_name}d.service
-
-%files parent -f .mfiles-parent
-%license LICENSE.txt NOTICE.txt
-
-%files thrift -f .mfiles-thrift
-%license LICENSE.txt NOTICE.txt
-
-%files clientutil -f .mfiles-clientutil
+%files -f .mfiles-client
+%doc README.asc CHANGES.txt NEWS.txt conf/cqlshrc.sample
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/nodetool
 %attr(755, root, root) %{_bindir}/sstableloader
@@ -422,24 +448,58 @@ exit 0
 %attr(755, root, root) %{_bindir}/sstableofflinerelevel
 %attr(755, root, root) %{_bindir}/sstablerepairedset
 %attr(755, root, root) %{_bindir}/sstablesplit
+%attr(755, root, root) %{_bindir}/cqlsh
+
+%files java-libs -f .mfiles
+%license LICENSE.txt NOTICE.txt
+
+%files server
+%license LICENSE.txt NOTICE.txt
+%dir %attr(755, root, root) %{_sharedstatedir}/%{pkg_name}
+%dir %attr(700, %{pkg_name}, %{pkg_name}) %{_sharedstatedir}/%{pkg_name}/data
+%dir %attr(700, %{pkg_name}, %{pkg_name}) %{_localstatedir}/log/%{pkg_name}
+%{_bindir}/%{pkg_name}
+%{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
+%{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
+%dir %attr(700, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-jaas.config
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-topology.properties
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/jvm.options
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback-tools.xml
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback.xml
+%config(noreplace) %{_sysconfdir}/%{pkg_name}/metrics-reporter-config-sample.yaml
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
+%{_unitdir}/%{pkg_name}d.service
+
+%files parent -f .mfiles-parent
+%license LICENSE.txt NOTICE.txt
+
+%if %thrift
+%files thrift -f .mfiles-thrift
+%license LICENSE.txt NOTICE.txt
+%endif
 
 %files python2-cqlshlib
-%doc conf/cqlshrc.sample
 %license LICENSE.txt NOTICE.txt
-%attr(755, root, root) %{_bindir}/cqlsh
 %{python2_sitearch}/cqlshlib
 %{python2_sitearch}/%{pkg_name}_pylib-0.0.0-py%{python2_version}.egg-info
 
+%if %stress
 %files stress -f .mfiles-stress
 %license LICENSE.txt NOTICE.txt
 %attr(755, root, root) %{_bindir}/%{pkg_name}-stress
 %attr(755, root, root) %{_bindir}/%{pkg_name}-stressd
 %{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
+%endif
 
 %files javadoc -f .mfiles-javadoc
 %license LICENSE.txt NOTICE.txt
 
 %changelog
+* Tue Jan 31 2017 Tomas Repik <trepik@redhat.com> - 3.9-3
+- reworked the subpackage structure
+
 * Wed Jan 18 2017 Tomas Repik <trepik@redhat.com> - 3.9-2
 - fix paths so that one could run the server
 
