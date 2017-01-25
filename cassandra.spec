@@ -235,19 +235,6 @@ rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
 # remove shaded classifier in cassandra driver from pom files
 %pom_xpath_remove "pom:dependencies/pom:dependency/pom:classifier" build/%{pkg_name}-%{version}.pom
 
-# TRY remove cassandra-java-driver
-#%%pom_remove_dep -r com.datastax.cassandra:cassandra-driver-core build/%%{pkg_name}-%%{version}.pom
-#rm src/java/org/apache/cassandra/cql3/functions/UDFunction.java
-#rm src/java/org/apache/cassandra/cql3/functions/UDFContext.java
-#rm src/java/org/apache/cassandra/cql3/functions/JavaBasedUDFunction.java
-#rm src/java/org/apache/cassandra/cql3/functions/JavaUDF.java
-#rm src/java/org/apache/cassandra/cql3/functions/UDFContextImpl.java
-#rm src/java/org/apache/cassandra/cql3/functions/UDHelper.java
-#rm src/java/org/apache/cassandra/io/sstable/CQLSSTableWriter.java
-#rm src/java/org/apache/cassandra/tools/BulkLoader.java
-#rm src/java/org/apache/cassandra/tools/LoaderOptions.java
-#rm src/java/org/apache/cassandra/utils/NativeSSTableLoaderClient.java
-
 # build jar repositories for dependencies
 build-jar-repository lib antlr3
 build-jar-repository lib stringtemplate4
