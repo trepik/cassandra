@@ -9,5 +9,9 @@ User=cassandra
 EnvironmentFile=-/etc/sysconfig/cassandra
 ExecStart=/usr/bin/cassandra $OPTIONS
 
+[Manager]
+DefaultTimeoutStartSec=120
+DefaultTimeoutStopSec=9000
+
 [Install]
 WantedBy=multi-user.target

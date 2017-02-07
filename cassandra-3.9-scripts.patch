@@ -1,6 +1,6 @@
 diff -urN cassandra-3.9/bin/cassandra cassandra-3.9new/bin/cassandra
 --- cassandra-3.9/bin/cassandra	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-3.9new/bin/cassandra	2017-01-26 16:47:55.552170907 +0100
++++ cassandra-3.9new/bin/cassandra	2017-02-07 16:56:54.216604418 +0100
 @@ -115,13 +115,13 @@
      NUMACTL=""
  fi
@@ -28,9 +28,45 @@ diff -urN cassandra-3.9/bin/cassandra cassandra-3.9new/bin/cassandra
      cassandra_parms="$cassandra_parms -Dcassandra.storagedir=$cassandra_storagedir"
  
      if [ "x$pidpath" != "x" ]; then
+@@ -210,6 +210,19 @@
+     return $?
+ }
+ 
++wait_for_service_available()
++{
++  host=$(cat $CASSANDRA_CONF/cassandra.yaml | grep listen_address: | head -1 | cut -d' ' -f2)
++  port=$(cat $CASSANDRA_CONF/cassandra.yaml | grep native_transport_port | head -1 | cut -d' ' -f2)
++  if ! nc -z $host $port; then
++    # echo "Waiting for Cassandra to start..."
++    while ! nc -z $host $port; do
++       sleep 1
++    done
++    # echo "Cassandra is ready."
++  fi
++}
++
+ # Parse any command line options.
+ args=`getopt vRfhp:bD:H:E: "$@"`
+ eval set -- "$args"
+@@ -283,6 +296,14 @@
+ # Start up the service
+ launch_service "$pidfile" "$foreground" "$properties" "$classname"
+ 
+-exit $?
++ret=$?
++
++if [ 0$ret -ne "0" ]; then
++    exit $ret
++fi
++
++wait_for_service_available
++
++exit 0
+ 
+ # vi:ai sw=4 ts=4 tw=0 et
 diff -urN cassandra-3.9/bin/cassandra.in.sh cassandra-3.9new/bin/cassandra.in.sh
 --- cassandra-3.9/bin/cassandra.in.sh	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-3.9new/bin/cassandra.in.sh	2017-01-26 16:52:30.471400690 +0100
++++ cassandra-3.9new/bin/cassandra.in.sh	2017-02-06 14:48:03.221172120 +0100
 @@ -1,3 +1,4 @@
 +#!/bin/bash
  # Licensed to the Apache Software Foundation (ASF) under one
@@ -72,7 +108,7 @@ diff -urN cassandra-3.9/bin/cassandra.in.sh cassandra-3.9new/bin/cassandra.in.sh
 -for jar in "$CASSANDRA_HOME"/lib/*.jar; do
 -    CLASSPATH="$CLASSPATH:$jar"
 -done
-+DEPS=( cassandra/cassandra-all metrics slf4j/api guava snakeyaml commons-codec jackson/jackson-mapper-asl jackson/jackson-core-asl netty/netty-all lz4 logback/logback-classic logback/logback-core jna sigar high-scale-lib/high-scale-lib antlr3-runtime concurrentlinkedhashmap-lru commons-lang3 json_simple stream-lib caffeine cassandra/cassandra-thrift libthrift snappy-java jBCrypt )
++DEPS=( cassandra/cassandra-all metrics slf4j/api guava snakeyaml commons-codec jackson/jackson-mapper-asl jackson/jackson-core-asl netty/netty-all lz4 logback/logback-classic logback/logback-core jna sigar high-scale-lib/high-scale-lib antlr3-runtime concurrentlinkedhashmap-lru commons-lang3 json_simple stream-lib caffeine cassandra/cassandra-thrift libthrift snappy-java jBCrypt jctools )
  
 -# JSR223 - collect all JSR223 engines' jars
 -for jsr223jar in "$CASSANDRA_HOME"/lib/jsr223/*/*.jar; do
@@ -160,7 +196,24 @@ diff -urN cassandra-3.9/bin/cqlsh.py cassandra-3.9new/bin/cqlsh.py
  import cmd
 diff -urN cassandra-3.9/bin/nodetool cassandra-3.9new/bin/nodetool
 --- cassandra-3.9/bin/nodetool	2016-09-26 16:02:27.000000000 +0200
-+++ cassandra-3.9new/bin/nodetool	2017-01-26 16:47:03.016744809 +0100
++++ cassandra-3.9new/bin/nodetool	2017-02-07 14:13:01.593406756 +0100
+@@ -24,11 +24,11 @@
+ 
+ if [ "x$CASSANDRA_INCLUDE" = "x" ]; then
+     # Locations (in order) to use when searching for an include file.
+-    for include in "`dirname "$0"`/cassandra.in.sh" \
+-                   "$HOME/.cassandra.in.sh" \
+-                   /usr/share/cassandra/cassandra.in.sh \
+-                   /usr/local/share/cassandra/cassandra.in.sh \
+-                   /opt/cassandra/cassandra.in.sh; do
++    for include in "`dirname "$0"`/nodetool.in.sh" \
++                   "$HOME/.nodetool.in.sh" \
++                   /usr/share/cassandra/nodetool.in.sh \
++                   /usr/local/share/cassandra/nodetool.in.sh \
++                   /opt/cassandra/nodetool.in.sh; do
+         if [ -r "$include" ]; then
+             . "$include"
+             break
 @@ -50,15 +50,15 @@
      exit 1
  fi

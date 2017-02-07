@@ -11,7 +11,7 @@
 
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Client utilities for %{pkg_name}
 # Apache (v2.0) BSD (3 clause):
 # ./src/java/org/apache/cassandra/utils/vint/VIntCoding.java
@@ -19,7 +19,7 @@ License:	ASL 2.0 and BSD
 URL:		http://cassandra.apache.org/
 Source0:	https://github.com/apache/%{pkg_name}/archive/%{pkg_name}-%{version}.tar.gz
 Source1:	%{pkg_name}.logrotate
-Source2:	%{pkg_name}d.service
+Source2:	%{pkg_name}.service
 Source3:	%{pkg_name}-tmpfile
 # pom files are not generated but used are the ones from mavencentral
 # because of orphaned maven-ant-task package doing the work in this case
@@ -58,7 +58,7 @@ Provides:	cqlsh = %{cqlsh_version}
 
 %description
 This package contains all client utilities for %{pkg_name}. These are:
-1. Commandline client used to communicate with %{pkg_name} server called cqlsh.
+1. Command line client used to communicate with %{pkg_name} server called cqlsh.
 2. Command line interface for managing cluster called nodetool.
 3. Tools for using, upgrading, and changing %{pkg_name} SSTables.
 
@@ -135,6 +135,8 @@ Summary:	OpenSource database server for high-scale application
 Requires(pre):	shadow-utils
 Requires:	%{?scl_prefix}sigar
 Requires:	%{pkg_name}-java-libs = %{version}-%{release}
+Requires:	jctools
+Requires:	procps-ng
 %{?systemd_ordering}
 BuildRequires:	systemd
 
@@ -232,7 +234,7 @@ rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
 %pom_xpath_remove "pom:dependencies/pom:dependency/pom:classifier" build/%{pkg_name}-%{version}.pom
 
 # TRY remove cassandra-java-driver
-#%pom_remove_dep -r com.datastax.cassandra:cassandra-driver-core build/%%{pkg_name}-%%{version}.pom
+#%%pom_remove_dep -r com.datastax.cassandra:cassandra-driver-core build/%%{pkg_name}-%%{version}.pom
 #rm src/java/org/apache/cassandra/cql3/functions/UDFunction.java
 #rm src/java/org/apache/cassandra/cql3/functions/UDFContext.java
 #rm src/java/org/apache/cassandra/cql3/functions/JavaBasedUDFunction.java
@@ -380,6 +382,7 @@ mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
 install -p -D -m 644 "%{SOURCE1}"  %{buildroot}%{_sysconfdir}/logrotate.d/%{pkg_name}
 install -p -D -m 755 bin/%{pkg_name} %{buildroot}%{_bindir}/%{pkg_name}
 install -p -D -m 755 bin/%{pkg_name}.in.sh %{buildroot}%{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
+install -p -D -m 755 bin/nodetool.in.sh %{buildroot}%{_datadir}/%{pkg_name}/nodetool.in.sh
 install -p -D -m 755 conf/%{pkg_name}-env.sh %{buildroot}%{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
 install -p -D -m 644 conf/%{pkg_name}.yaml %{buildroot}%{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
 install -p -D -m 644 conf/%{pkg_name}-jaas.config %{buildroot}%{_sysconfdir}/%{pkg_name}/%{pkg_name}-jaas.config
@@ -407,8 +410,8 @@ install -p -D -m 755 tools/bin/%{pkg_name}-stress %{buildroot}%{_bindir}/%{pkg_n
 install -p -D -m 755 tools/bin/%{pkg_name}-stressd %{buildroot}%{_bindir}/%{pkg_name}-stressd
 %endif
 
-# install cassandrad.service
-install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{_unitdir}/%{pkg_name}d.service
+# install cassandra.service
+install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{_unitdir}/%{pkg_name}.service
 
 %pre server
 getent group %{pkg_name} >/dev/null || groupadd -f -g %{gid_uid} -r %{pkg_name}
@@ -424,13 +427,13 @@ fi
 exit 0
 
 %post server
-%systemd_post %{pkg_name}d.service
+%systemd_post %{pkg_name}.service
 
 %preun server
-%systemd_preun %{pkg_name}d.service
+%systemd_preun %{pkg_name}.service
 
 %postun server
-%systemd_postun_with_restart %{pkg_name}d.service
+%systemd_postun_with_restart %{pkg_name}.service
 
 %files -f .mfiles-client
 %doc README.asc CHANGES.txt NEWS.txt conf/cqlshrc.sample
@@ -449,13 +452,14 @@ exit 0
 %attr(755, root, root) %{_bindir}/sstablerepairedset
 %attr(755, root, root) %{_bindir}/sstablesplit
 %attr(755, root, root) %{_bindir}/cqlsh
+%{_datadir}/%{pkg_name}/nodetool.in.sh
 
 %files java-libs -f .mfiles
 %license LICENSE.txt NOTICE.txt
 
 %files server
 %license LICENSE.txt NOTICE.txt
-%dir %attr(755, root, root) %{_sharedstatedir}/%{pkg_name}
+%dir %attr(711, root, root) %{_sharedstatedir}/%{pkg_name}
 %dir %attr(700, %{pkg_name}, %{pkg_name}) %{_sharedstatedir}/%{pkg_name}/data
 %dir %attr(700, %{pkg_name}, %{pkg_name}) %{_localstatedir}/log/%{pkg_name}
 %{_bindir}/%{pkg_name}
@@ -470,7 +474,7 @@ exit 0
 %config(noreplace) %{_sysconfdir}/%{pkg_name}/logback.xml
 %config(noreplace) %{_sysconfdir}/%{pkg_name}/metrics-reporter-config-sample.yaml
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
-%{_unitdir}/%{pkg_name}d.service
+%{_unitdir}/%{pkg_name}.service
 
 %files parent -f .mfiles-parent
 %license LICENSE.txt NOTICE.txt
@@ -497,6 +501,12 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 
 %changelog
+* Tue Feb 07 2017 Tomas Repik <trepik@redhat.com> - 3.9-4
+- service renamed
+- nodetool include file added
+- runtime dependencies for server added
+- init script waits until the server is ready to accept connections
+
 * Tue Jan 31 2017 Tomas Repik <trepik@redhat.com> - 3.9-3
 - reworked the subpackage structure
 
