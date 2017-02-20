@@ -6,12 +6,28 @@
 
 %{!?thrift:%global thrift 0}
 %{!?stress:%global stress 0}
+%{!?selinux:%global selinux 1}
 
 %global cqlsh_version 5.0.1
 
+%if %selinux
+%global selinuxtype	targeted
+%global moduletype	services
+# Usage: _format var format
+#   Expand 'pkg_name' into various formats as needed
+#   Format must contain '$x' somewhere to do anything useful
+%global _format() export %1=""; for x in %{pkg_name}; do %1+=%2; %1+=" "; done;
+
+# Relabel files
+%global relabel_files() \ # ADD files in *.fc file
+
+# Version of distribution SELinux policy package
+%global selinux_policyver 3.13.1-225.6.fc25
+%endif
+
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	Client utilities for %{pkg_name}
 # Apache (v2.0) BSD (3 clause):
 # ./src/java/org/apache/cassandra/utils/vint/VIntCoding.java
@@ -27,6 +43,7 @@ Source4:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-all/
 Source5:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-thrift/%{version}/%{pkg_name}-thrift-%{version}.pom
 Source6:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-clientutil/%{version}/%{pkg_name}-clientutil-%{version}.pom
 Source7:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-parent/%{version}/%{pkg_name}-parent-%{version}.pom
+Source8:	%{pkg_name}-selinux.tar.gz
 
 # fix encoding, naming, classpaths and dependencies
 Patch0:		%{pkg_name}-%{version}-build.patch
@@ -189,6 +206,22 @@ Summary:	Stress testing utility for %{pkg_name}
 A Java-based stress testing utility for basic benchmarking and load testing a %{pkg_name} cluster.
 %endif
 
+%if %selinux
+%package selinux
+Summary:	SELinux Policies for %{pkg_name}
+BuildArch:	noarch
+BuildRequires:	selinux-policy
+BuildRequires:	selinux-policy-devel
+Requires(post):	selinux-policy-base >= %{selinux_policyver}
+Requires(post):	selinux-policy-targeted >= %{selinux_policyver}
+Requires(post):	policycoreutils
+Requires(post):	policycoreutils-python
+Requires(post):	libselinux-utils
+
+%description selinux
+SELinux policy modules for use with %{pkg_name}
+%endif
+
 %package javadoc
 Summary:	Javadoc for %{pkg_name}
 
@@ -335,6 +368,10 @@ build-jar-repository lib javax.inject
 %endif
 %{?scl:EOF}
 
+%if %selinux
+tar -xzf %{SOURCE8}
+%endif
+
 %build
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 ant jar javadoc -Drelease=true 
@@ -344,6 +381,10 @@ ant jar javadoc -Drelease=true
 pushd pylib
 %py2_build
 popd
+
+%if %selinux
+make SHARE="%{_datadir}" TARGETS="%{pkg_name}"
+%endif
 
 %install
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
@@ -401,6 +442,38 @@ install -p -D -m 755 tools/bin/%{pkg_name}-stressd %{buildroot}%{_bindir}/%{pkg_
 
 # install cassandra.service
 install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{_unitdir}/%{pkg_name}.service
+
+%if %selinux
+# Install SELinux interfaces
+%_format INTERFACES $x.if
+install -d %{buildroot}%{_datadir}/selinux/devel/include/%{moduletype}
+install -p -m 644 $INTERFACES \
+	%{buildroot}%{_datadir}/selinux/devel/include/%{moduletype}
+
+# Install policy modules
+%_format MODULES $x.pp.bz2
+install -d %{buildroot}%{_datadir}/selinux/packages
+install -m 0644 $MODULES \
+	%{buildroot}%{_datadir}/selinux/packages
+
+%post selinux
+# Install all modules in a single transaction
+%_format MODULES %{_datadir}/selinux/packages/$x.pp.bz2
+%{_sbindir}/semodule -n -s %{selinuxtype} -i $MODULES
+if %{_sbindir}/selinuxenabled ; then
+    %{_sbindir}/load_policy
+    %relabel_files
+fi
+
+%postun selinux
+if [ $1 -eq 0 ]; then
+	%{_sbindir}/semodule -n -r %{pkg_name} &> /dev/null || :
+	if %{_sbindir}/selinuxenabled ; then
+		%{_sbindir}/load_policy
+		%relabel_files
+	fi
+fi
+%endif
 
 %pre server
 getent group %{pkg_name} >/dev/null || groupadd -f -g %{gid_uid} -r %{pkg_name}
@@ -486,10 +559,20 @@ exit 0
 %{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
 %endif
 
+%if %selinux
+%files selinux
+%defattr(-,root,root,0755)
+%attr(0644,root,root) %{_datadir}/selinux/packages/*.pp.bz2
+%attr(0644,root,root) %{_datadir}/selinux/devel/include/%{moduletype}/*.if
+%endif
+
 %files javadoc -f .mfiles-javadoc
 %license LICENSE.txt NOTICE.txt
 
 %changelog
+* Mon Feb 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-6
+- create dummy selinux subpackage
+
 * Mon Feb 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-5
 - require nmap-ncat for fedora and nc for scl server subpackage (rhbz#1424717)
 

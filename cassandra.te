@@ -1,0 +1,8 @@
+policy_module(cassandra,1.0)
+ 
+type cassandra_t;
+type cassandra_exec_t;
+init_daemon_domain(cassandra_t, cassandra_exec_t)
+ 
+# Grant cassandra_t the signal privilege
+allow cassandra_t self:process { signal };
