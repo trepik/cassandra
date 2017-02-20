@@ -11,7 +11,7 @@
 
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	Client utilities for %{pkg_name}
 # Apache (v2.0) BSD (3 clause):
 # ./src/java/org/apache/cassandra/utils/vint/VIntCoding.java
@@ -137,6 +137,8 @@ Requires:	%{?scl_prefix}sigar
 Requires:	%{pkg_name}-java-libs = %{version}-%{release}
 Requires:	jctools
 Requires:	procps-ng
+%{?scl:Requires:	nc}
+%{!?scl:Requires:	nmap-ncat}
 %{?systemd_ordering}
 BuildRequires:	systemd
 
@@ -501,6 +503,9 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 
 %changelog
+* Mon Feb 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-5
+- require nmap-ncat for fedora and nc for scl server subpackage (rhbz#1424717)
+
 * Tue Feb 07 2017 Tomas Repik <trepik@redhat.com> - 3.9-4
 - service renamed
 - nodetool include file added
