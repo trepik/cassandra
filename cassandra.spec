@@ -71,6 +71,7 @@ Patch6:		%{pkg_name}-%{version}-remove-primitive.patch
 
 Requires:	%{pkg_name}-python2-cqlshlib = %{version}-%{release}
 Requires:	%{pkg_name}-java-libs = %{version}-%{release}
+Requires:	%{?scl_prefix}airline
 Provides:	cqlsh = %{cqlsh_version}
 
 %description
@@ -267,6 +268,19 @@ rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
 
 # remove shaded classifier in cassandra driver from pom files
 %pom_xpath_remove "pom:dependencies/pom:dependency/pom:classifier" build/%{pkg_name}-%{version}.pom
+
+# TRY remove cassandra-java-driver
+#%%pom_remove_dep -r com.datastax.cassandra:cassandra-driver-core build/%%{pkg_name}-%%{version}.pom
+#rm src/java/org/apache/cassandra/cql3/functions/UDFunction.java
+#rm src/java/org/apache/cassandra/cql3/functions/UDFContext.java
+#rm src/java/org/apache/cassandra/cql3/functions/JavaBasedUDFunction.java
+#rm src/java/org/apache/cassandra/cql3/functions/JavaUDF.java
+#rm src/java/org/apache/cassandra/cql3/functions/UDFContextImpl.java
+#rm src/java/org/apache/cassandra/cql3/functions/UDHelper.java
+#rm src/java/org/apache/cassandra/io/sstable/CQLSSTableWriter.java
+#rm src/java/org/apache/cassandra/tools/BulkLoader.java
+#rm src/java/org/apache/cassandra/tools/LoaderOptions.java
+#rm src/java/org/apache/cassandra/utils/NativeSSTableLoaderClient.java
 
 # build jar repositories for dependencies
 build-jar-repository lib antlr3
@@ -528,14 +542,14 @@ exit 0
 %{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
 %{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
 %dir %attr(700, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-jaas.config
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-topology.properties
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/jvm.options
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback-tools.xml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback.xml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/metrics-reporter-config-sample.yaml
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-jaas.config
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-topology.properties
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/jvm.options
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/logback-tools.xml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/logback.xml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/metrics-reporter-config-sample.yaml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/logrotate.d/%{pkg_name}
 %{_unitdir}/%{pkg_name}.service
 
 %files parent -f .mfiles-parent
@@ -570,7 +584,8 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 
 %changelog
-* Mon Feb 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-6
+* Mon Mar 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-6
+- require airline and change permissions for config files
 - create dummy selinux subpackage
 
 * Mon Feb 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-5
