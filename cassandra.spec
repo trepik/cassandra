@@ -11,7 +11,7 @@
 
 Name:		%{?scl_prefix}cassandra
 Version:	3.9
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	Client utilities for %{pkg_name}
 # Apache (v2.0) BSD (3 clause):
 # ./src/java/org/apache/cassandra/utils/vint/VIntCoding.java
@@ -54,6 +54,7 @@ Patch6:		%{pkg_name}-%{version}-remove-primitive.patch
 
 Requires:	%{pkg_name}-python2-cqlshlib = %{version}-%{release}
 Requires:	%{pkg_name}-java-libs = %{version}-%{release}
+Requires:	%{?scl_prefix}airline
 Provides:	cqlsh = %{cqlsh_version}
 
 %description
@@ -468,14 +469,14 @@ exit 0
 %{_datadir}/%{pkg_name}/%{pkg_name}.in.sh
 %{_datadir}/%{pkg_name}/%{pkg_name}-env.sh
 %dir %attr(700, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-jaas.config
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-topology.properties
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/jvm.options
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback-tools.xml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/logback.xml
-%config(noreplace) %{_sysconfdir}/%{pkg_name}/metrics-reporter-config-sample.yaml
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/%{pkg_name}.yaml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-jaas.config
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/%{pkg_name}-topology.properties
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/jvm.options
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/logback-tools.xml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/logback.xml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/%{pkg_name}/metrics-reporter-config-sample.yaml
+%config(noreplace) %attr(644, %{pkg_name}, %{pkg_name}) %{_sysconfdir}/logrotate.d/%{pkg_name}
 %{_unitdir}/%{pkg_name}.service
 
 %files parent -f .mfiles-parent
@@ -503,6 +504,9 @@ exit 0
 %license LICENSE.txt NOTICE.txt
 
 %changelog
+* Mon Mar 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-6
+- require airline and change permissions for config files
+
 * Mon Feb 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-5
 - require nmap-ncat for fedora and nc for scl server subpackage (rhbz#1424717)
 
