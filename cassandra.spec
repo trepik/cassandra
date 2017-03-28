@@ -4,7 +4,6 @@
 # fedora reserved UID and GID for cassandra
 %global gid_uid 143
 
-%{!?thrift:%global thrift 0}
 %{!?stress:%global stress 0}
 %{!?selinux:%global selinux 1}
 
@@ -13,14 +12,6 @@
 %if %selinux
 %global selinuxtype	targeted
 %global moduletype	services
-# Usage: _format var format
-#   Expand 'pkg_name' into various formats as needed
-#   Format must contain '$x' somewhere to do anything useful
-%global _format() export %1=""; for x in %{pkg_name}; do %1+=%2; %1+=" "; done;
-
-# Relabel files
-%global relabel_files() \ # ADD files in *.fc file
-
 # Version of distribution SELinux policy package
 %global selinux_policyver 3.13.1-225.6.fc25
 %endif
@@ -40,7 +31,6 @@ Source3:	%{pkg_name}-tmpfile
 # pom files are not generated but used are the ones from mavencentral
 # because of orphaned maven-ant-task package doing the work in this case
 Source4:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-all/%{version}/%{pkg_name}-all-%{version}.pom
-Source5:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-thrift/%{version}/%{pkg_name}-thrift-%{version}.pom
 Source6:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-clientutil/%{version}/%{pkg_name}-clientutil-%{version}.pom
 Source7:	http://central.maven.org/maven2/org/apache/%{pkg_name}/%{pkg_name}-parent/%{version}/%{pkg_name}-parent-%{version}.pom
 Source8:	%{pkg_name}-selinux.tar.gz
@@ -56,15 +46,15 @@ Patch2:		%{pkg_name}-%{version}-scripts.patch
 # remove "Open" infix from all hppc classes
 # https://issues.apache.org/jira/browse/CASSANDRA-12995X
 Patch3:		%{pkg_name}-%{version}-hppc.patch
-# changes autoclosable issue with TTransport in thrift
-# https://bugzilla.redhat.com/show_bug.cgi?id=1183877
-Patch4:		%{pkg_name}-%{version}-thrift.patch
 # add two more parameters for SubstituteLogger constructor in slf4j
 # https://issues.apache.org/jira/browse/CASSANDRA-12996
 Patch5:		%{pkg_name}-%{version}-slf4j.patch
 # remove net.mintern:primitive as it will be removed in next upstream release
 # https://github.com/apache/cassandra/commit/8f0d5a295d34972ef719574df4aa1b59bf9e8478
 Patch6:		%{pkg_name}-%{version}-remove-primitive.patch
+# remove thrift as it will be removed in next upstream major release
+# https://github.com/apache/cassandra/commit/4881d9c308ccd6b5ca70925bf6ebedb70e7705fc
+Patch7:		%{pkg_name}-%{version}-remove-thrift.patch
 
 # TODO
 #BuildArchitectures:	noarch
@@ -97,7 +87,6 @@ BuildRequires:	%{?scl_prefix}concurrent-trees
 BuildRequires:	%{?scl_prefix}logback
 BuildRequires:	%{?scl_prefix}metrics-reporter-config
 BuildRequires:	%{?scl_prefix}compress-lzf
-BuildRequires:	%{?scl_prefix}disruptor-thrift-server
 BuildRequires:	%{?scl_prefix}airline
 BuildRequires:	%{?scl_prefix}jmh
 BuildRequires:	%{?scl_prefix}byteman
@@ -107,6 +96,8 @@ BuildRequires:	%{?scl_prefix}jackson
 BuildRequires:	%{?scl_prefix}antlr3-tool
 BuildRequires:	%{?scl_prefix}caffeine
 BuildRequires:	%{?scl_prefix}hppc
+BuildRequires:	%{?scl_prefix}lz4-java
+BuildRequires:	%{?scl_prefix}snappy-java
 # using high-scale-lib from stephenc, no Cassandra original
 #BuildRequires:	 mvn(com.boundary:high-scale-lib)
 BuildRequires:	%{?scl_prefix}high-scale-lib
@@ -125,12 +116,8 @@ BuildRequires:	%{?scl_prefix_java_common}jcl-over-slf4j
 BuildRequires:	%{?scl_prefix_java_common}ant-junit
 # in rh-java-common: 4.0.28, needed: 4.0.39.Final
 BuildRequires:	%{?scl_prefix_java_common}netty
-# in cassandra39: 0.9.1, needed: 0.9.2
-BuildRequires:	%{?scl_prefix}libthrift-java
 # TODO
 BuildRequires:	%{?scl_prefix}cassandra-java-driver
-BuildRequires:	%{?scl_prefix}lz4-java
-BuildRequires:	%{?scl_prefix}snappy-java
 BuildRequires:	%{?scl_prefix}ohc
 BuildRequires:	%{?scl_prefix}ohc-core-j8
 # the SCL version of the package depends on rh-maven33 collection
@@ -174,17 +161,6 @@ Summary:	Parent POM for %{pkg_name}
 %description parent
 Parent POM for %{pkg_name}.
 
-%if %thrift
-%package thrift
-Summary:	Thrift for %{pkg_name}
-Requires:	%{pkg_name} = %{version}-%{release}
-
-%description thrift
-Allows portable (across programming languages) access to the database. Thrift
-accomplishes this by generated source code for the programming language in
-question based on a Thrift IDL file describing the service.
-%endif
-
 # source codes of cqlshlib are not python3 compatible, therefore using python2
 %package python2-cqlshlib
 Summary:	Python cqlsh library for %{pkg_name}
@@ -211,16 +187,18 @@ A Java-based stress testing utility for basic benchmarking and load testing a %{
 %package selinux
 Summary:	SELinux Policies for %{pkg_name}
 BuildArch:	noarch
+Requires:	selinux-policy >= %{selinux_policyver}
+BuildRequires:	git
+BuildRequires:	pkgconfig(systemd)
 BuildRequires:	selinux-policy
 BuildRequires:	selinux-policy-devel
 Requires(post):	selinux-policy-base >= %{selinux_policyver}
-Requires(post):	selinux-policy-targeted >= %{selinux_policyver}
-Requires(post):	policycoreutils
-Requires(post):	policycoreutils-python
 Requires(post):	libselinux-utils
+Requires(post):	policycoreutils
+Requires(post):	policycoreutils-python%{?fedora:-utils}
 
 %description selinux
-SELinux policy modules for use with %{pkg_name}
+SELinux policy modules for %{pkg_name}
 %endif
 
 %package javadoc
@@ -233,6 +211,9 @@ This package contains the API documentation for %{pkg_name}.
 %setup -qcn %{pkg_name}-%{version}
 cp -pr %{pkg_name}-%{pkg_name}-%{version}/* .
 rm -r %{pkg_name}-%{pkg_name}-%{version}
+
+# remove thrift patch
+%patch7 -p1
 
 # remove binary and library files
 find -name "*.class" -print -delete
@@ -254,40 +235,14 @@ find -name "*py.class" -print -delete
 # copy pom files
 mkdir build
 cp -p %{SOURCE4} build/%{pkg_name}-%{version}.pom
-cp -p %{SOURCE5} build/%{pkg_name}-thrift-%{version}.pom
 cp -p %{SOURCE6} build/%{pkg_name}-clientutil-%{version}.pom
 cp -p %{SOURCE7} build/%{pkg_name}-%{version}-parent.pom
-
-# remove hadoop
-rm src/java/org/apache/cassandra/client/RingCache.java
-rm -r src/java/org/apache/cassandra/hadoop
-rm test/unit/org/apache/cassandra/client/TestRingCache.java
-rm test/unit/org/apache/cassandra/hadoop/ColumnFamilyInputFormatTest.java
-# remove hadoop also from pom files
-%pom_remove_dep -r org.apache.hadoop: build/%{pkg_name}-%{version}.pom
-
-# remove shaded classifier in cassandra driver from pom files
-%pom_xpath_remove "pom:dependencies/pom:dependency/pom:classifier" build/%{pkg_name}-%{version}.pom
-
-# TRY remove cassandra-java-driver
-#%%pom_remove_dep -r com.datastax.cassandra:cassandra-driver-core build/%%{pkg_name}-%%{version}.pom
-#rm src/java/org/apache/cassandra/cql3/functions/UDFunction.java
-#rm src/java/org/apache/cassandra/cql3/functions/UDFContext.java
-#rm src/java/org/apache/cassandra/cql3/functions/JavaBasedUDFunction.java
-#rm src/java/org/apache/cassandra/cql3/functions/JavaUDF.java
-#rm src/java/org/apache/cassandra/cql3/functions/UDFContextImpl.java
-#rm src/java/org/apache/cassandra/cql3/functions/UDHelper.java
-#rm src/java/org/apache/cassandra/io/sstable/CQLSSTableWriter.java
-#rm src/java/org/apache/cassandra/tools/BulkLoader.java
-#rm src/java/org/apache/cassandra/tools/LoaderOptions.java
-#rm src/java/org/apache/cassandra/utils/NativeSSTableLoaderClient.java
 
 # build jar repositories for dependencies
 build-jar-repository lib antlr3
 build-jar-repository lib stringtemplate4
 build-jar-repository lib jsr-305
 build-jar-repository lib commons-lang3
-build-jar-repository lib libthrift
 build-jar-repository lib slf4j/api
 build-jar-repository lib guava
 build-jar-repository lib jamm
@@ -325,7 +280,6 @@ build-jar-repository lib metrics-reporter-config/reporter-config
 build-jar-repository lib metrics-reporter-config/reporter-config-base
 build-jar-repository lib joda-time
 build-jar-repository lib compress-lzf
-build-jar-repository lib disruptor-thrift-server
 build-jar-repository lib commons-cli
 build-jar-repository lib airline
 build-jar-repository lib jna
@@ -357,25 +311,29 @@ build-jar-repository lib javax.inject
 %patch2 -p1
 # hppc patch
 %patch3 -p1
-# thrift patch
-%patch4 -p1
 # slf4j patch
 %patch5 -p1
 # remove primitive patch
 %patch6 -p1
 
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
+# remove hadoop
+rm -r src/java/org/apache/cassandra/hadoop
+# remove hadoop also from pom files
+%pom_remove_dep -r org.apache.hadoop: build/%{pkg_name}-%{version}.pom
+
+# remove shaded classifier in cassandra driver from pom files
+%pom_xpath_remove "pom:dependencies/pom:dependency/pom:classifier" build/%{pkg_name}-%{version}.pom
+
 # update dependencies in the downloaded pom files to those being actually used
 %pom_change_dep com.boundary: com.github.stephenc.high-scale-lib: build/%{pkg_name}-%{version}.pom
-%pom_change_dep com.github.rholder:snowball-stemmer org.tartarus:snowball build/%{pkg_name}-thrift-%{version}.pom
 
-# remove primitve as a dependency
-%pom_remove_dep -r :primitive build/%{pkg_name}-thrift-%{version}.pom
+# remove thrift dependencies from the downloaded pom files
+%pom_remove_dep -r com.thinkaurelius.thrift:thrift-server build/%{pkg_name}-%{version}.pom
+%pom_remove_dep -r org.apache.cassandra:cassandra-thrift build/%{pkg_name}-%{version}.pom
+%pom_remove_dep -r org.apache.thrift:libthrift build/%{pkg_name}-%{version}.pom
 
 %mvn_package "org.apache.%{pkg_name}:%{pkg_name}-parent:pom:%{version}" parent
-%if %thrift
-%mvn_package ":%{pkg_name}-thrift" thrift
-%endif
 %mvn_package ":%{pkg_name}-clientutil" client
 %if %stress
 %mvn_package ":%{pkg_name}-stress" stress
@@ -397,14 +355,18 @@ pushd pylib
 popd
 
 %if %selinux
-make SHARE="%{_datadir}" TARGETS="%{pkg_name}"
+make
+%endif
+
+%pre
+%if %selinux
+%selinux_relabel_pre -s %{selinuxtype}
 %endif
 
 %install
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 %mvn_artifact build/%{pkg_name}-%{version}-parent.pom
 %mvn_artifact build/%{pkg_name}-%{version}.pom build/%{pkg_name}-%{version}.jar
-%mvn_artifact build/%{pkg_name}-thrift-%{version}.pom build/%{pkg_name}-thrift-%{version}.jar
 %mvn_artifact build/%{pkg_name}-clientutil-%{version}.pom build/%{pkg_name}-clientutil-%{version}.jar
 %if %stress
 %mvn_artifact org.apache.%{pkg_name}:%{pkg_name}-stress:%{version} build/tools/lib/%{pkg_name}-stress.jar
@@ -458,36 +420,23 @@ install -p -D -m 755 tools/bin/%{pkg_name}-stressd %{buildroot}%{_bindir}/%{pkg_
 install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{_unitdir}/%{pkg_name}.service
 
 %if %selinux
-# Install SELinux interfaces
-%_format INTERFACES $x.if
-install -d %{buildroot}%{_datadir}/selinux/devel/include/%{moduletype}
-install -p -m 644 $INTERFACES \
-	%{buildroot}%{_datadir}/selinux/devel/include/%{moduletype}
-
-# Install policy modules
-%_format MODULES $x.pp.bz2
+# install policy modules
 install -d %{buildroot}%{_datadir}/selinux/packages
-install -m 0644 $MODULES \
-	%{buildroot}%{_datadir}/selinux/packages
+install -d -p %{buildroot}%{_datadir}/selinux/devel/include/%{moduletype}
+install -p -m 644 %{pkg_name}.if %{buildroot}%{_datadir}/selinux/devel/include/%{moduletype}
+install -m 0644 %{pkg_name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages
+%endif
 
 %post selinux
-# Install all modules in a single transaction
-%_format MODULES %{_datadir}/selinux/packages/$x.pp.bz2
-%{_sbindir}/semodule -n -s %{selinuxtype} -i $MODULES
-if %{_sbindir}/selinuxenabled ; then
-    %{_sbindir}/load_policy
-    %relabel_files
-fi
+%selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{pkg_name}.pp.bz2
 
 %postun selinux
 if [ $1 -eq 0 ]; then
-	%{_sbindir}/semodule -n -r %{pkg_name} &> /dev/null || :
-	if %{_sbindir}/selinuxenabled ; then
-		%{_sbindir}/load_policy
-		%relabel_files
-	fi
+    %selinux_modules_uninstall -s %{selinuxtype} %{pkg_name}
 fi
-%endif
+
+%posttrans selinux
+%selinux_relabel_post -s %{selinuxtype}
 
 %pre server
 getent group %{pkg_name} >/dev/null || groupadd -f -g %{gid_uid} -r %{pkg_name}
@@ -555,11 +504,6 @@ exit 0
 %files parent -f .mfiles-parent
 %license LICENSE.txt NOTICE.txt
 
-%if %thrift
-%files thrift -f .mfiles-thrift
-%license LICENSE.txt NOTICE.txt
-%endif
-
 %files python2-cqlshlib
 %license LICENSE.txt NOTICE.txt
 %{python2_sitearch}/cqlshlib
@@ -576,8 +520,8 @@ exit 0
 %if %selinux
 %files selinux
 %defattr(-,root,root,0755)
-%attr(0644,root,root) %{_datadir}/selinux/packages/*.pp.bz2
-%attr(0644,root,root) %{_datadir}/selinux/devel/include/%{moduletype}/*.if
+%attr(0644,root,root) %{_datadir}/selinux/packages/%{pkg_name}.pp.bz2
+%attr(0644,root,root) %{_datadir}/selinux/devel/include/%{moduletype}/%{pkg_name}.if
 %endif
 
 %files javadoc -f .mfiles-javadoc
@@ -587,6 +531,7 @@ exit 0
 * Mon Mar 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-6
 - require airline and change permissions for config files
 - create dummy selinux subpackage
+- remove thrift
 
 * Mon Feb 20 2017 Tomas Repik <trepik@redhat.com> - 3.9-5
 - require nmap-ncat for fedora and nc for scl server subpackage (rhbz#1424717)
